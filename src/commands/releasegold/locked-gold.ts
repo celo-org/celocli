@@ -29,7 +29,6 @@ export default class LockedGold extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    // tslint:disable-next-line
     const { flags } = this.parse(LockedGold)
     const value = new BigNumber(flags.value)
     const checkBuilder = newCheckBuilder(this, this.contractAddress).isAccount(this.contractAddress)

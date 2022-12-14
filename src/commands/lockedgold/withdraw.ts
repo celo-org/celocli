@@ -15,7 +15,6 @@ export default class Withdraw extends BaseCommand {
   static examples = ['withdraw --from 0x47e172F6CfB6c7D01C1574fa3E2Be7CC73269D95']
 
   async run() {
-    // tslint:disable-next-line
     const { flags } = this.parse(Withdraw)
     this.kit.defaultAccount = flags.from
     const lockedgold = await this.kit.contracts.getLockedGold()

@@ -40,7 +40,6 @@ export default class RevokeVotes extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    // tslint:disable-next-line
     const { flags } = this.parse(RevokeVotes)
 
     await newCheckBuilder(this).isAccount(this.releaseGoldWrapper.address).runChecks()

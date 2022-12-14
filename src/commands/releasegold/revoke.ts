@@ -18,7 +18,6 @@ export default class Revoke extends ReleaseGoldBaseCommand {
   static examples = ['revoke --contract 0x5409ED021D9299bf6814279A6A1411A7e866A631']
 
   async run() {
-    // tslint:disable-next-line
     const { flags } = this.parse(Revoke)
 
     const isRevoked = await this.releaseGoldWrapper.isRevoked()

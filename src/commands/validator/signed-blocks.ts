@@ -153,7 +153,6 @@ export default class ValidatorSignedBlocks extends BaseCommand {
 /**
  * Printer object to output marks in a grid to indicate signing status.
  */
-// tslint:disable-next-line:max-classes-per-file
 class MarkPrinter {
   private previousBlockNumber: number | null = null
 

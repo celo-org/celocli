@@ -26,7 +26,6 @@ export default class SetMaxDistribution extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    // tslint:disable-next-line
     const { flags } = this.parse(SetMaxDistribution)
     const distributionRatio = Number(flags.distributionRatio)
 

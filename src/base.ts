@@ -19,7 +19,6 @@ export const gasOptions = {
   ...enumEntriesDupWithLowercase(Object.entries(StableToken)),
 }
 
-// tslint:disable-next-line:max-classes-per-file
 export abstract class BaseCommand extends Command {
   static flags = {
     privateKey: flags.string({
