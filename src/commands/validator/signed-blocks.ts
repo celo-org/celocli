@@ -196,7 +196,7 @@ class MarkPrinter {
     return elected ? (signed ? chalk.green('.') : chalk.red('✘')) : chalk.yellow('~')
   }
 
-  private printLineLabel(blockNumber: number, newline: boolean = true) {
+  private printLineLabel(blockNumber: number, newline = true) {
     if (newline) {
       process.stdout.write('\n')
     }

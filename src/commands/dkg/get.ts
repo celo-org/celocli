@@ -1,7 +1,8 @@
 import { flags } from '@oclif/command'
+import {AbiItem} from "web3-utils";
 import { BaseCommand } from '../../base'
 import { Flags } from '../../utils/command'
-const DKG = require('./DKG.json')
+import DKG from "./DKG.json"
 
 export enum Method {
   shares = 'shares',
@@ -31,7 +32,7 @@ export default class DKGGet extends BaseCommand {
     const res = this.parse(DKGGet)
     const web3 = this.kit.connection.web3
 
-    const dkg = new web3.eth.Contract(DKG.abi, res.flags.address)
+    const dkg = new web3.eth.Contract(DKG.abi as unknown as AbiItem[], res.flags.address)
 
     const methodType = res.flags.method as keyof typeof Method
     switch (methodType) {

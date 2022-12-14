@@ -2,10 +2,11 @@ import { ensureLeading0x } from '@celo/utils/lib/address'
 import { flags } from '@oclif/command'
 import fs from 'fs'
 import { BaseCommand } from '../../base'
+import { AbiItem } from "web3-utils";
 import { displayWeb3Tx } from '../../utils/cli'
 import { Flags } from '../../utils/command'
 
-const DKG = require('./DKG.json')
+import DKG from './DKG.json'
 
 export default class DKGRegister extends BaseCommand {
   static description = 'Register a public key in the DKG'
@@ -21,7 +22,7 @@ export default class DKGRegister extends BaseCommand {
     const res = this.parse(DKGRegister)
     const web3 = this.kit.connection.web3
 
-    const dkg = new web3.eth.Contract(DKG.abi, res.flags.address)
+    const dkg = new web3.eth.Contract(DKG.abi as unknown as AbiItem[], res.flags.address)
 
     // read the pubkey and publish it
     const blsKey = fs.readFileSync(res.flags.blsKey).toString('hex')

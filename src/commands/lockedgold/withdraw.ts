@@ -23,6 +23,7 @@ export default class Withdraw extends BaseCommand {
     await newCheckBuilder(this).isAccount(flags.from).runChecks()
 
     const currentTime = Math.round(new Date().getTime() / 1000)
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       let madeWithdrawal = false
       const pendingWithdrawals = await lockedgold.getPendingWithdrawals(flags.from)

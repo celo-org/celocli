@@ -1,7 +1,6 @@
 import baseSetup from '@celo/dev-utils/lib/ganache-setup'
 // Has to import the matchers somewhere so that typescript knows the matchers have been made available
 import _unused from '@celo/dev-utils/lib/matchers'
-// @ts-ignore
 import flakeTrackerSetup from '@celo/flake-tracker/src/jest/setup.global.js'
 import * as path from 'path'
 

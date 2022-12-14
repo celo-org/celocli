@@ -571,8 +571,10 @@
     elliptic "^6.5.4"
     ethereumjs-util "^5.2.0"
 
-"@celo/dev-utils@file:../celo-monorepo/packages/dev-utils":
-  version "0.0.1-dev"
+"@celo/dev-utils@^0.0.1-alpha":
+  version "0.0.1-alpha"
+  resolved "https://registry.yarnpkg.com/@celo/dev-utils/-/dev-utils-0.0.1-alpha.tgz#e7bca980c3107b91293a751f133537431be6470b"
+  integrity sha512-bevTdLjE9yjtkS2Ba214uDXmuWJTtfb3vfx3hzhxITuQjxKoMK2NgckcgAGLmYXgO+UvDdLjZZF7KBLldIfAHg==
   dependencies:
     bignumber.js "^9.0.0"
     fs-extra "^8.1.0"

@@ -87,6 +87,7 @@ export default class LockedGold extends ReleaseGoldBaseCommand {
     } else if (flags.action === 'withdraw') {
       await checkBuilder.runChecks()
       const currentTime = Math.round(new Date().getTime() / 1000)
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         let madeWithdrawal = false
         const pendingWithdrawals = await lockedGold.getPendingWithdrawals(this.contractAddress)
