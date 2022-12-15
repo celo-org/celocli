@@ -35,8 +35,7 @@ export abstract class OffchainDataCommand extends BaseCommand {
     }),
   }
 
-  // @ts-ignore Can't encode that this is happening in init
-  offchainDataWrapper: BasicDataWrapper
+  offchainDataWrapper!: BasicDataWrapper
 
   async init() {
     await super.init()

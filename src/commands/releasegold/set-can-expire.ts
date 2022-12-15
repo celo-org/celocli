@@ -28,7 +28,6 @@ export default class SetCanExpire extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    // tslint:disable-next-line
     const { flags } = this.parse(SetCanExpire)
     const canExpire = flags.value === 'true' || flags.value === 'True' ? true : false
 

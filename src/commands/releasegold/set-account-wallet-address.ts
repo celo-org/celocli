@@ -27,7 +27,6 @@ export default class SetAccountWalletAddress extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    // tslint:disable-next-line
     const { flags } = this.parse(SetAccountWalletAddress)
     const isRevoked = await this.releaseGoldWrapper.isRevoked()
 

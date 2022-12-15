@@ -46,7 +46,6 @@ export default class Authorize extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    // tslint:disable-next-line
     const { flags } = this.parse(Authorize)
     const role = flags.role
 

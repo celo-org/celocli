@@ -17,8 +17,12 @@
     "rootDir": "src",
     "outDir": "lib",
     "esModuleInterop": true,
-    "target": "es6"
+    "target": "es6",
+    "resolveJsonModule": true
   },
-  "include": ["src/", "types/"],
-  "exclude": ["**/*.test.ts"]
+  "include": ["src/", "types/", "src/**/*.json"],
+  "exclude": ["**/*.test.ts"],
+  "typeRoots": [
+    "./src/typings"
+  ]
 }

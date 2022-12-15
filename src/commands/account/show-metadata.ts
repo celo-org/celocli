@@ -13,7 +13,7 @@ export default class ShowMetadata extends BaseCommand {
   }
   static args: IArg[] = [Args.file('file', { description: 'Path of the metadata file' })]
   static examples = ['show-metadata ~/metadata.json']
-  public requireSynced: boolean = false
+  public requireSynced = false
 
   async run() {
     const res = this.parse(ShowMetadata)

@@ -153,7 +153,6 @@ export default class ValidatorSignedBlocks extends BaseCommand {
 /**
  * Printer object to output marks in a grid to indicate signing status.
  */
-// tslint:disable-next-line:max-classes-per-file
 class MarkPrinter {
   private previousBlockNumber: number | null = null
 
@@ -196,7 +195,7 @@ class MarkPrinter {
     return elected ? (signed ? chalk.green('.') : chalk.red('✘')) : chalk.yellow('~')
   }
 
-  private printLineLabel(blockNumber: number, newline: boolean = true) {
+  private printLineLabel(blockNumber: number, newline = true) {
     if (newline) {
       process.stdout.write('\n')
     }

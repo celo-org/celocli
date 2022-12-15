@@ -149,7 +149,6 @@ export default class Show extends BaseCommand {
           accounts,
           async (validator) =>
             (await governance.isHotfixWhitelistedBy(hotfixBuf, validator.signer)) ||
-            /* tslint:disable-next-line no-return-await */
             (await governance.isHotfixWhitelistedBy(hotfixBuf, validator.account))
         )
         printValueMapRecursive({

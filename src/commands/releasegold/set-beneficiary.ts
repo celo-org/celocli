@@ -31,7 +31,6 @@ export default class SetBeneficiary extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    // tslint:disable-next-line
     const { flags } = this.parse(SetBeneficiary)
     const newBeneficiary = flags.beneficiary
 

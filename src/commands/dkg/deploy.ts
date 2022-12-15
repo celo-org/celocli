@@ -1,8 +1,10 @@
 import { flags } from '@oclif/command'
+import {AbiItem} from "web3-utils";
 import { BaseCommand } from '../../base'
 import { displayWeb3Tx } from '../../utils/cli'
 import { Flags } from '../../utils/command'
-const DKG = require('./DKG.json')
+
+import DKG from "./DKG.json"
 
 export default class DKGDeploy extends BaseCommand {
   static description = 'Deploys the DKG smart contract'
@@ -20,7 +22,7 @@ export default class DKGDeploy extends BaseCommand {
   async run() {
     const res = this.parse(DKGDeploy)
     const web3 = this.kit.connection.web3
-    const dkg = new web3.eth.Contract(DKG.abi)
+    const dkg = new web3.eth.Contract(DKG.abi as unknown as AbiItem[])
 
     await displayWeb3Tx(
       'deployDKG',

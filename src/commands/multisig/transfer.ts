@@ -41,11 +41,9 @@ export default class MultiSigTransfer extends BaseCommand {
     let transferTx
     if (transferFrom) {
       if (!sender) this.error("Must submit 'sender' when submitting TransferFrom tx")
-      // @ts-ignore - function will accept BigNumber
-      transferTx = celoToken.transferFrom(sender, to, amountBN)
+      transferTx = celoToken.transferFrom(sender, to, amountBN.toString())
     } else {
-      // @ts-ignore - function will accept BigNumber
-      transferTx = celoToken.transfer(to, amountBN)
+      transferTx = celoToken.transfer(to, amountBN.toString())
     }
     const multiSigTx = await multisig.submitOrConfirmTransaction(celoToken.address, transferTx.txo)
     await displaySendTx<any>('submitOrApproveTransfer', multiSigTx, { from }, 'tx Sent')

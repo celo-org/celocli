@@ -15,7 +15,6 @@ export default class Withdraw extends BaseCommand {
   static examples = ['withdraw --from 0x47e172F6CfB6c7D01C1574fa3E2Be7CC73269D95']
 
   async run() {
-    // tslint:disable-next-line
     const { flags } = this.parse(Withdraw)
     this.kit.defaultAccount = flags.from
     const lockedgold = await this.kit.contracts.getLockedGold()
@@ -23,6 +22,7 @@ export default class Withdraw extends BaseCommand {
     await newCheckBuilder(this).isAccount(flags.from).runChecks()
 
     const currentTime = Math.round(new Date().getTime() / 1000)
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       let madeWithdrawal = false
       const pendingWithdrawals = await lockedgold.getPendingWithdrawals(flags.from)

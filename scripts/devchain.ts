@@ -20,7 +20,6 @@ const ProtocolRoot = path.normalize(path.join(__dirname, "../"));
 const CallerCWD = process.env.INIT_CWD ? process.env.INIT_CWD : process.cwd();
 process.chdir(CallerCWD);
 
-// tslint:disable-next-line: no-unused-expression
 yargs
   .scriptName("devchain")
   .recommendCommands()
@@ -135,7 +134,7 @@ async function startGanache(
   chainCopy?: tmp.DirResult
 ) {
   const logFn = opts.verbose
-    ? // tslint:disable-next-line: no-console
+    ?
       (...args: any[]) => console.log(...args)
     : () => {
         /*nothing*/
@@ -158,7 +157,6 @@ async function startGanache(
       if (err) {
         reject(err);
       } else {
-        // tslint:disable-next-line: no-console
         console.log(chalk.red("Ganache STARTED"));
         // console.log(blockchain)
         resolve(blockchain);
@@ -186,7 +184,7 @@ export function execCmd(
   args: string[],
   options?: SpawnOptions & { silent?: boolean }
 ) {
-  return new Promise<number>(async (resolve, reject) => {
+  return new Promise<number>( (resolve, reject) => {
     const { silent, ...spawnOptions } = options || { silent: false };
     if (!silent) {
       console.debug("$ " + [cmd].concat(args).join(" "));
@@ -276,7 +274,6 @@ async function runDevChainFromTar(filename: string) {
     keep: false,
     unsafeCleanup: true,
   });
-  // tslint:disable-next-line: no-console
   console.log(`Creating tmp folder: ${chainCopy.name}`);
 
   await decompressChain(filename, chainCopy.name);
@@ -293,7 +290,6 @@ function decompressChain(
   tarPath: string,
   copyChainPath: string
 ): Promise<void> {
-  // tslint:disable-next-line: no-console
   console.log("Decompressing chain");
   return new Promise((resolve, reject) => {
     targz.decompress({ src: tarPath, dest: copyChainPath }, (err) => {
@@ -301,7 +297,6 @@ function decompressChain(
         console.error(err);
         reject(err);
       } else {
-        // tslint:disable-next-line: no-console
         console.log("Chain decompressed");
         resolve();
       }
@@ -378,7 +373,6 @@ async function compressChain(
   chainPath: string,
   filename: string
 ): Promise<void> {
-  // tslint:disable-next-line: no-console
   console.log("Compressing chain");
   return new Promise((resolve, reject) => {
     // ensures the path to the file
@@ -388,7 +382,6 @@ async function compressChain(
         console.error(err);
         reject(err);
       } else {
-        // tslint:disable-next-line: no-console
         console.log("Chain compressed");
         resolve();
       }

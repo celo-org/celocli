@@ -54,7 +54,6 @@ export default class ValidatorRegister extends BaseCommand {
     await displaySendTx(
       'registerValidator',
       validators.registerValidator(
-        // @ts-ignore incorrect typing for bytes type
         res.flags.ecdsaKey,
         res.flags.blsKey,
         res.flags.blsSignature
