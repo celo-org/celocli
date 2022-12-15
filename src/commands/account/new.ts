@@ -67,12 +67,8 @@ export default class NewAccount extends BaseCommand {
   ]
 
   static languageOptions(language: string): MnemonicLanguages | undefined {
-    if (language) {
-      // @ts-ignore
-      const enumLanguage = MnemonicLanguages[language]
-      return enumLanguage as MnemonicLanguages
-    }
-    return undefined
+    return Object.values(MnemonicLanguages).includes(language) ?
+     MnemonicLanguages[language as keyof typeof MnemonicLanguages] : undefined
   }
 
   static sanitizeDerivationPath(derivationPath?: string) {

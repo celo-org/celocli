@@ -83,7 +83,7 @@ export default class GetAttestations extends BaseCommand {
     kit: ContractKit,
     phoneNumber: string,
     account: string,
-    network: string = 'mainnet'
+    network = 'mainnet'
   ): Promise<string> {
     console.log('Using network: ' + network)
     const authSigner: AuthSigner = {

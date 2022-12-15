@@ -1,5 +1,3 @@
-// tslint:disable:class-name max-classes-per-file
-// TODO: investigate tslint issues
 import * as fs from 'fs-extra'
 import * as path from 'path'
 import { gasOptions } from '../base'
@@ -24,7 +22,7 @@ export function readConfig(configDir: string): CeloConfig {
   if (fs.pathExistsSync(configPath(configDir))) {
     const existingConfig = fs.readJSONSync(configPath(configDir))
     const combinedConfig = { ...defaultConfig, ...existingConfig }
-    if (combinedConfig.hasOwnProperty('nodeUrl')) {
+    if (combinedConfig.hasOwnProperty.call('nodeUrl')) {
       combinedConfig.node = combinedConfig.nodeUrl
     }
     return combinedConfig

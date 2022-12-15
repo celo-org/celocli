@@ -1,6 +1,6 @@
 import { Address } from '@celo/connect'
 import { newKitFromWeb3 } from '@celo/contractkit'
-import { GovernanceWrapper, Proposal } from '@celo/contractkit/lib/wrappers/Governance'
+import { GovernanceWrapper } from '@celo/contractkit/lib/wrappers/Governance'
 import { NetworkConfig, testWithGanache, timeTravel } from '@celo/dev-utils/lib/ganache-test'
 import { ProposalBuilder } from '@celo/governance'
 import BigNumber from 'bignumber.js'
@@ -23,9 +23,8 @@ testWithGanache('governance:withdraw', (web3: Web3) => {
     accounts = await web3.eth.getAccounts()
     kit.defaultAccount = accounts[0]
     governance = await kit.contracts.getGovernance()
-    let proposal: Proposal
     console.log((await governance.lastDequeue()).toNumber())
-    proposal = await new ProposalBuilder(kit).build()
+    const proposal = await new ProposalBuilder(kit).build()
     await governance
       .propose(proposal, 'URL')
       .sendAndWaitForReceipt({ from: accounts[0], value: minDeposit })

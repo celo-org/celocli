@@ -177,7 +177,7 @@ export const Flags = {
   contractsArray: flags.build({
     parse: parseArray(parseCoreContract),
     description: 'Array of Registered Core Contracts',
-    helpValue: `\'["${CeloContract.BlockchainParameters}", "${CeloContract.Governance}", "${CeloContract.Validators}"]\'`,
+    helpValue: `["${CeloContract.BlockchainParameters}", "${CeloContract.Governance}", "${CeloContract.Validators}"]`,
   }),
   phoneNumber: flags.build({
     parse: parsePhoneNumber,

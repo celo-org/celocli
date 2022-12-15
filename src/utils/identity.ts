@@ -26,7 +26,7 @@ export abstract class ClaimCommand extends BaseCommand {
     }),
   }
   static args = [Args.file('file', { description: 'Path of the metadata file' })]
-  public requireSynced: boolean = false
+  public requireSynced = false
   // We need this to properly parse flags for subclasses
   protected self = ClaimCommand
 

@@ -22,7 +22,6 @@ export default class TransferDollars extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    // tslint:disable-next-line
     const { flags } = this.parse(TransferDollars)
     const isRevoked = await this.releaseGoldWrapper.isRevoked()
     this.kit.defaultAccount = isRevoked
