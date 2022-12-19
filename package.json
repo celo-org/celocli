@@ -21,15 +21,15 @@
     "node": ">=14"
   },
   "scripts": {
-    "clean": "tsc -b . --clean",
-    "build": "tsc -b .",
+    "clean": "tsc -b --p ./tsconfig.build.json . --clean",
+    "build": "tsc -b --p ./tsconfig.build.json .",
     "docs": "./generate_docs.sh",
     "lint": "eslint . --ext .ts",
     "prepublish": "",
     "generate:shrinkwrap": "npm install --production && npm shrinkwrap",
     "check:shrinkwrap": "npm install --production && npm shrinkwrap && ./scripts/check_shrinkwrap_dirty.sh",
     "prepack": "yarn run build && oclif-dev manifest && oclif-dev readme && yarn run check:shrinkwrap",
-    "test:reset": "yarn ts-node ./scripts/devchain.ts generate-tar .tmp/devchain.tar.gz --migration_override ../dev-utils/src/migration-override.json --upto 28 --release_gold_contracts scripts/truffle/releaseGoldExampleConfigs.json",
+    "test:reset": "yarn ts-node ./scripts/devchain.ts generate-tar .tmp/devchain.tar.gz --migration_override ./node_modules/@celo/dev-utils/lib/migration-override.json --upto 28 --release_gold_contracts scripts/truffle/releaseGoldExampleConfigs.json",
     "test:livechain": "yarn ts-node ./scripts/devchain run-tar .tmp/devchain.tar.gz",
     "test": "TZ=UTC jest --runInBand"
   },
@@ -77,7 +77,6 @@
   },
   "devDependencies": {
     "@celo/dev-utils": "^0.0.1-alpha",
-    "@celo/flake-tracker": "file:../celo-monorepo/packages/flake-tracker",
     "@celo/ganache-cli": "git+https://github.com/celo-org/ganache-cli.git#e933297",
     "@oclif/dev-cli": "^1.23.0",
     "@types/cli-table": "^0.3.0",
@@ -96,6 +95,7 @@
     "@typescript-eslint/eslint-plugin": "^5.46.1",
     "@typescript-eslint/parser": "^5.46.1",
     "eslint": "^8.29.0",
+    "ganache": "^7.7.0",
     "globby": "^8",
     "jest": "^29.2.2",
     "prettier": "1.19.1",
