@@ -18,7 +18,5 @@
   },
   "include": ["src/**/*.ts", "src/**/*.json"],
   "exclude": ["**/*.test.ts"],
-  "typeRoots": [
-    "./types/"
-  ]
+  "typeRoots": ["./types/"]
 }
