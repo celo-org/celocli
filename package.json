@@ -77,7 +77,6 @@
   },
   "devDependencies": {
     "@celo/dev-utils": "^0.0.1-alpha",
-    "@celo/flake-tracker": "file:../celo-monorepo/packages/flake-tracker",
     "@celo/ganache-cli": "git+https://github.com/celo-org/ganache-cli.git#e933297",
     "@oclif/dev-cli": "^1.23.0",
     "@types/cli-table": "^0.3.0",

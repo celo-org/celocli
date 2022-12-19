@@ -595,9 +595,6 @@
     "@types/debug" "^4.1.5"
     debug "^4.1.1"
 
-"@celo/flake-tracker@file:../celo-monorepo/packages/flake-tracker":
-  version "0.0.1-dev"
-
 "@celo/ganache-cli@git+https://github.com/celo-org/ganache-cli.git#e933297":
   version "6.6.1"
   resolved "git+https://github.com/celo-org/ganache-cli.git#e93329707efbe899ac2f32a30ccf2badbbec8bdf"
