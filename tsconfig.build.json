@@ -6,14 +6,19 @@
     "lib": ["dom", "es2015", "es2016"],
     "module": "commonjs",
     "moduleResolution": "node",
-    "noEmit": true,
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "outDir": "lib",
     "resolveJsonModule": true,
-    "skipLibCheck": true,
+    "rootDir": "src",
     "strict": true,
+    "skipLibCheck": true,
     "target": "es6"
   },
-  "include": ["src/**/*.ts", "scripts/**/*.ts", "src/**/*.json"]
+  "include": ["src/**/*.ts", "src/**/*.json"],
+  "exclude": ["**/*.test.ts"],
+  "typeRoots": [
+    "./types/"
+  ]
 }
