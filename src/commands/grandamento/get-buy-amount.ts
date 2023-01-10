@@ -1,6 +1,6 @@
 import { StableToken } from '@celo/contractkit'
 import { toFixed } from '@celo/utils/lib/fixidity'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { printValueMap } from '../../utils/cli'
 import { Flags } from '../../utils/command'
@@ -31,15 +31,16 @@ export default class GetBuyAmount extends BaseCommand {
   }
 
   async run() {
-    const grandaMento = await this.kit.contracts.getGrandaMento()
+    const kit = await this.getKit()
+    const grandaMento = await kit.contracts.getGrandaMento()
 
-    const res = this.parse(GetBuyAmount)
+    const res = await this.parse(GetBuyAmount)
     const sellAmount = res.flags.value
     const stableToken = stableTokenOptions[res.flags.stableToken]
     const sellCelo = res.flags.sellCelo === 'true'
 
-    const stableTokenAddress = await this.kit.celoTokens.getAddress(stableToken)
-    const sortedOracles = await this.kit.contracts.getSortedOracles()
+    const stableTokenAddress = await kit.celoTokens.getAddress(stableToken)
+    const sortedOracles = await kit.contracts.getSortedOracles()
     const celoStableTokenOracleRate = (await sortedOracles.medianRate(stableTokenAddress)).rate
 
     const buyAmount = await grandaMento.getBuyAmount(

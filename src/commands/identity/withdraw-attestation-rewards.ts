@@ -1,4 +1,4 @@
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { displaySendTx } from '../../utils/cli'
 import { Flags } from '../../utils/command'
@@ -19,15 +19,16 @@ export default class AttestationRewardsWithdraw extends BaseCommand {
   }
 
   async run() {
-    const { flags } = this.parse(AttestationRewardsWithdraw)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(AttestationRewardsWithdraw)
     const [accounts, attestations] = await Promise.all([
-      this.kit.contracts.getAccounts(),
-      this.kit.contracts.getAttestations(),
+      kit.contracts.getAccounts(),
+      kit.contracts.getAttestations(),
     ])
 
     let tokenAddress = flags.tokenAddress
     if (!tokenAddress) {
-      tokenAddress = (await this.kit.contracts.getStableToken()).address
+      tokenAddress = (await kit.contracts.getStableToken()).address
     }
 
     const accountAddress = await accounts.signerToAccount(flags.from)
@@ -40,8 +41,8 @@ export default class AttestationRewardsWithdraw extends BaseCommand {
       return
     }
 
-    cli.action.start(`Withdrawing ${pendingWithdrawals.toString()} rewards to ${accountAddress}`)
+    CliUx.ux.action.start(`Withdrawing ${pendingWithdrawals.toString()} rewards to ${accountAddress}`)
     await displaySendTx('withdraw', attestations.withdraw(tokenAddress), { from: flags.from })
-    cli.action.stop()
+    CliUx.ux.action.stop()
   }
 }

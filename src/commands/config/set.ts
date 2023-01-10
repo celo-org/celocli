@@ -1,4 +1,5 @@
-import { BaseCommand, gasOptions } from '../../base'
+import { Flags as flags } from '@oclif/core'
+import { BaseCommand, gasOptions, nodeFlagOptions, gasCurrencyFlagOptions } from '../../base'
 import { readConfig, writeConfig } from '../../utils/config'
 
 export default class Set extends BaseCommand {
@@ -6,14 +7,14 @@ export default class Set extends BaseCommand {
 
   static flags = {
     ...BaseCommand.flags,
-    node: {
-      ...BaseCommand.flags.node,
+    node: flags.string({
+      ...nodeFlagOptions,
       hidden: false,
-    },
-    gasCurrency: {
-      ...BaseCommand.flags.gasCurrency,
+    }),
+    gasCurrency: flags.enum({
+      ...gasCurrencyFlagOptions,
       hidden: false,
-    },
+    }),
   }
 
   static examples = [
@@ -26,7 +27,7 @@ export default class Set extends BaseCommand {
   requireSynced = false
 
   async run() {
-    const res = this.parse(Set)
+    const res = await this.parse(Set)
     const curr = readConfig(this.config.configDir)
     const node = res.flags.node ?? curr.node
     const gasCurrency = res.flags.gasCurrency

@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -22,16 +22,18 @@ export default class TransferCelo extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(TransferCelo)
+    const kit = await this.getKit()
+    const res = await this.parse(TransferCelo)
 
     const from: string = res.flags.from
     const to: string = res.flags.to
     const value = new BigNumber(res.flags.value)
 
-    this.kit.defaultAccount = from
-    const celoToken = await this.kit.contracts.getGoldToken()
+    kit.defaultAccount = from
+    const celoToken = await kit.contracts.getGoldToken()
 
-    await newCheckBuilder(this).hasEnoughCelo(from, value).runChecks()
+    const check = await newCheckBuilder(this).hasEnoughCelo(from, value)
+    await check.runChecks()
 
     if (res.flags.comment) {
       await displaySendTx(

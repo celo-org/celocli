@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -21,9 +21,10 @@ export default class Cancel extends BaseCommand {
   }
 
   async run() {
-    const grandaMento = await this.kit.contracts.getGrandaMento()
+    const kit = await this.getKit()
+    const grandaMento = await kit.contracts.getGrandaMento()
 
-    const res = this.parse(Cancel)
+    const res = await this.parse(Cancel)
     const proposalID = res.flags.proposalID
 
     await newCheckBuilder(this).grandaMentoProposalExists(proposalID).runChecks()

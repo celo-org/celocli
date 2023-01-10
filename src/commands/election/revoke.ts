@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -22,12 +22,13 @@ export default class ElectionRevoke extends BaseCommand {
     'revoke --from 0x4443d0349e8b3075cba511a0a87796597602a0f1 --for 0x932fee04521f5fcb21949041bf161917da3f588b, --value 1000000',
   ]
   async run() {
-    const res = this.parse(ElectionRevoke)
+    const res = await this.parse(ElectionRevoke)
+    const kit = await this.getKit()
 
     await newCheckBuilder(this, res.flags.from).isSignerOrAccount().runChecks()
 
-    const election = await this.kit.contracts.getElection()
-    const accounts = await this.kit.contracts.getAccounts()
+    const election = await kit.contracts.getElection()
+    const accounts = await kit.contracts.getAccounts()
     const account = await accounts.voteSignerToAccount(res.flags.from)
     const txos = await election.revoke(account, res.flags.for, new BigNumber(res.flags.value))
     for (const txo of txos) {

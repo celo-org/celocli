@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { Flags } from '../../utils/command'
 
@@ -10,7 +10,7 @@ export default class GetPaymentDelegation extends BaseCommand {
   static flags = {
     ...BaseCommand.flags,
     account: Flags.address({ required: true }),
-    ...(cli.table.flags() as object),
+    ...(CliUx.ux.table.flags() as object),
   }
 
   static args = []
@@ -18,9 +18,10 @@ export default class GetPaymentDelegation extends BaseCommand {
   static examples = ['get-payment-delegation --account 0x5409ed021d9299bf6814279a6a1411a7e866a631']
 
   async run() {
-    const res = this.parse(GetPaymentDelegation)
-    this.kit.defaultAccount = res.flags.account
-    const accounts = await this.kit.contracts.getAccounts()
+    const res = await this.parse(GetPaymentDelegation)
+    const kit = await this.getKit()
+    kit.defaultAccount = res.flags.account
+    const accounts = await kit.contracts.getAccounts()
 
     console.log('Payment delegation beneficiary and fraction are: \n')
     const retval = await accounts.getPaymentDelegation(res.flags.account)

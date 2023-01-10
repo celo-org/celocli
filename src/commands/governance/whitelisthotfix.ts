@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { toBuffer } from 'ethereumjs-util'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -19,14 +19,15 @@ export default class WhitelistHotfix extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(WhitelistHotfix)
+    const res = await this.parse(WhitelistHotfix)
+    const kit = await this.getKit()
     const hash = toBuffer(res.flags.hash) as Buffer
     const account = res.flags.from
-    this.kit.defaultAccount = account
+    kit.defaultAccount = account
 
     await newCheckBuilder(this).hotfixNotExecuted(hash).runChecks()
 
-    const governance = await this.kit.contracts.getGovernance()
+    const governance = await kit.contracts.getGovernance()
     await displaySendTx(
       'whitelistHotfixTx',
       governance.whitelistHotfix(hash),

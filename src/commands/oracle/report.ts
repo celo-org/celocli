@@ -1,5 +1,5 @@
 import { CeloContract } from '@celo/contractkit'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { BaseCommand } from '../../base'
 import { displaySendTx, failWith } from '../../utils/cli'
@@ -32,8 +32,9 @@ export default class ReportPrice extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(ReportPrice)
-    const sortedOracles = await this.kit.contracts.getSortedOracles()
+    const kit = await this.getKit()
+    const res = await this.parse(ReportPrice)
+    const sortedOracles = await kit.contracts.getSortedOracles()
     const value = new BigNumber(res.flags.value)
 
     await displaySendTx(

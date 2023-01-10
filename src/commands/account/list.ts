@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 
 export default class AccountList extends BaseCommand {
@@ -16,14 +16,15 @@ export default class AccountList extends BaseCommand {
   requireSynced = false
 
   async run() {
-    const res = this.parse(AccountList)
+    const res = await this.parse(AccountList)
+    const kit = await this.getKit()
 
     // Retreive accounts from the connected Celo node.
-    const allAddresses = !res.flags.local ? await this.kit.connection.getAccounts() : []
+    const allAddresses = !res.flags.local ? await kit.connection.getAccounts() : []
 
     // Get addresses from the local wallet.
     const localAddresses =
-      res.flags.local ?? true ? await this.kit.connection.getLocalAccounts() : []
+      res.flags.local ?? true ? kit.connection.getLocalAccounts() : []
 
     // Display the addresses.
     const localName = res.flags.useLedger ? 'Ledger' : 'Local'

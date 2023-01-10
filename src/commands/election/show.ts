@@ -1,5 +1,5 @@
-import { flags } from '@oclif/command'
-import { IArg } from '@oclif/parser/lib/args'
+import { Flags as flags } from '@oclif/core'
+import { Arg } from '@oclif/core/lib/interfaces'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { printValueMapRecursive } from '../../utils/cli'
@@ -20,7 +20,7 @@ export default class ElectionShow extends BaseCommand {
     }),
   }
 
-  static args: IArg[] = [
+  static args: Arg[] = [
     Args.address('address', { description: "Voter or Validator Groups's address" }),
   ]
 
@@ -30,9 +30,10 @@ export default class ElectionShow extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(ElectionShow)
+    const res = await this.parse(ElectionShow)
+    const kit = await this.getKit()
     const address = res.args.address
-    const election = await this.kit.contracts.getElection()
+    const election = await kit.contracts.getElection()
 
     if (res.flags.group) {
       await newCheckBuilder(this).isValidatorGroup(address).runChecks()

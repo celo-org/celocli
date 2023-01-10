@@ -2,7 +2,7 @@ import { valueToString } from '@celo/contractkit/lib/wrappers/BaseWrapper'
 import { concurrentMap } from '@celo/utils/lib/async'
 import { zip } from '@celo/utils/lib/collections'
 import chalk from 'chalk'
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import { BaseCommand } from '../../base'
 
 export default class List extends BaseCommand {
@@ -10,27 +10,28 @@ export default class List extends BaseCommand {
 
   static flags = {
     ...BaseCommand.flags,
-    ...(cli.table.flags() as object),
+    ...(CliUx.ux.table.flags() as object),
   }
 
   static examples = ['list']
 
   async run() {
-    const res = this.parse(List)
+    const res = await this.parse(List)
+    const kit = await this.getKit()
 
-    const governance = await this.kit.contracts.getGovernance()
+    const governance = await kit.contracts.getGovernance()
     const queue = await governance.getQueue()
     const expiredQueueMap = await concurrentMap(5, queue, (upvoteRecord) =>
       governance.isQueuedProposalExpired(upvoteRecord.proposalID)
     )
     const unexpiredQueue = queue.filter((_, idx) => !expiredQueueMap[idx])
-    const sortedQueue = governance.sortedQueue(unexpiredQueue)
+    const sortedQueue: any = governance.sortedQueue(unexpiredQueue)
 
     console.log(chalk.magenta.bold('Queued Proposals:'))
-    cli.table(
+    CliUx.ux.table(
       sortedQueue,
       {
-        ID: { get: (p) => valueToString(p.proposalID) },
+        ID: { get: (p: any) => valueToString(p.proposalID) },
         upvotes: { get: (p) => valueToString(p.upvotes) },
       },
       res.flags
@@ -43,7 +44,7 @@ export default class List extends BaseCommand {
     const proposals = zip((proposalID, stage) => ({ proposalID, stage }), unexpiredDequeue, stages)
 
     console.log(chalk.blue.bold('Dequeued Proposals:'))
-    cli.table(
+    CliUx.ux.table(
       proposals,
       {
         ID: { get: (p) => valueToString(p.proposalID) },
@@ -53,16 +54,16 @@ export default class List extends BaseCommand {
     )
 
     console.log(chalk.red.bold('Expired Proposals:'))
-    const expiredQueue = queue
+    const expiredQueue: any = queue
       .filter((_, idx) => expiredQueueMap[idx])
       .map((_, idx) => queue[idx].proposalID)
     const expiredDequeue = dequeue
       .filter((_, idx) => expiredDequeueMap[idx])
       .map((_, idx) => dequeue[idx])
-    cli.table(
+    CliUx.ux.table(
       expiredQueue.concat(expiredDequeue),
       {
-        ID: { get: (id) => valueToString(id) },
+        ID: { get: (id: any) => valueToString(id) },
       },
       res.flags
     )

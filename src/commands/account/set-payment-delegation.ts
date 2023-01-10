@@ -1,5 +1,5 @@
 import { valueToFixidityString } from '@celo/contractkit/lib/wrappers/BaseWrapper'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { displaySendTx } from '../../utils/cli'
 import { Flags } from '../../utils/command'
@@ -22,9 +22,10 @@ export default class SetPaymentDelegation extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(SetPaymentDelegation)
-    this.kit.defaultAccount = res.flags.account
-    const accounts = await this.kit.contracts.getAccounts()
+    const res = await this.parse(SetPaymentDelegation)
+    const kit = await this.getKit()
+    kit.defaultAccount = res.flags.account
+    const accounts = await kit.contracts.getAccounts()
 
     await displaySendTx(
       'setPaymentDelegation',

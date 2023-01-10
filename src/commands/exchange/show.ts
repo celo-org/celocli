@@ -1,6 +1,5 @@
 import { StableTokenInfo } from '@celo/contractkit/lib/celo-tokens'
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
+import { Flags as flags, CliUx } from '@oclif/core'
 import { BaseCommand } from '../../base'
 
 export default class ExchangeShow extends BaseCommand {
@@ -19,19 +18,20 @@ export default class ExchangeShow extends BaseCommand {
   static examples = ['list']
 
   async run() {
-    const { flags: parsedFlags } = this.parse(ExchangeShow)
+    const { flags: parsedFlags } = await this.parse(ExchangeShow)
+    const kit = await this.getKit()
 
-    cli.action.start('Fetching exchange rates...')
-    const exchangeAmounts = await this.kit.celoTokens.forStableCeloToken(
+    CliUx.ux.action.start('Fetching exchange rates...')
+    const exchangeAmounts = await kit.celoTokens.forStableCeloToken(
       async (info: StableTokenInfo) => {
-        const exchange = await this.kit.contracts.getContract(info.exchangeContract)
+        const exchange = await kit.contracts.getContract(info.exchangeContract)
         return {
           buy: await exchange.getBuyTokenAmount(parsedFlags.amount as string, true),
           sell: await exchange.getBuyTokenAmount(parsedFlags.amount as string, false),
         }
       }
     )
-    cli.action.stop()
+    CliUx.ux.action.stop()
 
     Object.entries(exchangeAmounts).forEach((element) => {
       this.log(`CELO/${element[0]}:`)

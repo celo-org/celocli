@@ -1,5 +1,5 @@
 import { StableToken } from '@celo/contractkit'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -32,22 +32,24 @@ export default class Propose extends BaseCommand {
   }
 
   async run() {
-    const celoToken = await this.kit.contracts.getGoldToken()
-    const grandaMento = await this.kit.contracts.getGrandaMento()
+    const kit = await this.getKit()
+    const celoToken = await kit.contracts.getGoldToken()
+    const grandaMento = await kit.contracts.getGrandaMento()
 
-    const res = this.parse(Propose)
+    const res = await this.parse(Propose)
     const signer = res.flags.from
     const sellAmount = res.flags.value
     const stableToken = stableTokenOptions[res.flags.stableToken]
     const sellCelo = res.flags.sellCelo === 'true'
 
-    this.kit.defaultAccount = signer
+    kit.defaultAccount = signer
 
-    const tokenToSell = sellCelo ? celoToken : await this.kit.contracts.getStableToken(stableToken)
+    const tokenToSell = sellCelo ? celoToken : await kit.contracts.getStableToken(stableToken)
 
-    await newCheckBuilder(this, signer)
+    const check = await newCheckBuilder(this, signer)
       .hasEnoughErc20(signer, sellAmount, tokenToSell.address)
-      .runChecks()
+
+    await check.runChecks()
 
     await displaySendTx(
       'increaseAllowance',
@@ -57,7 +59,7 @@ export default class Propose extends BaseCommand {
     await displaySendTx(
       'createExchangeProposal',
       await grandaMento.createExchangeProposal(
-        this.kit.celoTokens.getContract(stableToken),
+        kit.celoTokens.getContract(stableToken),
         sellAmount,
         sellCelo
       ),

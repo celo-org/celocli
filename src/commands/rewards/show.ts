@@ -3,9 +3,8 @@ import { GroupVoterReward, VoterReward } from '@celo/contractkit/lib/wrappers/El
 import { AccountSlashed } from '@celo/contractkit/lib/wrappers/LockedGold'
 import { Validator, ValidatorReward } from '@celo/contractkit/lib/wrappers/Validators'
 import { eqAddress } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { Flags as flags, CliUx } from '@oclif/core'
 import BigNumber from 'bignumber.js'
-import { cli } from 'cli-ux'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { Flags } from '../../utils/command'
@@ -33,7 +32,7 @@ export default class Show extends BaseCommand {
       default: 1,
       description: 'Show results for the last N epochs',
     }),
-    ...(cli.table.flags() as object),
+    ...(CliUx.ux.table.flags() as object),
   }
 
   static args = []
@@ -41,12 +40,13 @@ export default class Show extends BaseCommand {
   static examples = ['show --address 0x5409ed021d9299bf6814279a6a1411a7e866a631']
 
   async run() {
-    const res = this.parse(Show)
+    const kit = await this.getKit()
+    const res = await this.parse(Show)
     const filter =
       Boolean(res.flags.voter) || Boolean(res.flags.validator) || Boolean(res.flags.group)
-    const election = await this.kit.contracts.getElection()
-    const validators = await this.kit.contracts.getValidators()
-    const lockedGold = await this.kit.contracts.getLockedGold()
+    const election = await kit.contracts.getElection()
+    const validators = await kit.contracts.getValidators()
+    const lockedGold = await kit.contracts.getLockedGold()
     const currentEpoch = (await validators.getEpochNumber()).toNumber()
     const checkBuilder = newCheckBuilder(this)
     const epochs = Math.max(1, res.flags.epochs || 1)
@@ -65,13 +65,13 @@ export default class Show extends BaseCommand {
     }
     await checkBuilder.runChecks()
 
-    let voterRewards: ExplainedVoterReward[] = []
-    let groupVoterRewards: ExplainedGroupVoterReward[] = []
-    let validatorRewards: ValidatorReward[] = []
-    let validatorGroupRewards: ValidatorReward[] = []
-    let accountsSlashed: AccountSlashed[] = []
+    let voterRewards: any[] = []
+    let groupVoterRewards: any[] = []
+    let validatorRewards: any[] = []
+    let validatorGroupRewards: any[] = []
+    let accountsSlashed: any[] = []
 
-    cli.action.start(`Calculating rewards`)
+    CliUx.ux.action.start(`Calculating rewards`)
     // Accumulate the rewards from each epoch
     for (
       let epochNumber = Math.max(0, currentEpoch - epochs);
@@ -171,7 +171,7 @@ export default class Show extends BaseCommand {
       )
     }
 
-    cli.action.stop()
+    CliUx.ux.action.stop()
 
     // At the end of each epoch: R, the total amount of rewards in gold to be allocated to stakers
     // for this epoch is programmatically derived from considering the tradeoff between paying rewards
@@ -186,7 +186,7 @@ export default class Show extends BaseCommand {
     if (voterRewards.length > 0) {
       console.info('')
       console.info('Voter rewards:')
-      cli.table(
+      CliUx.ux.table(
         voterRewards,
         {
           address: {},
@@ -200,7 +200,7 @@ export default class Show extends BaseCommand {
     } else if (groupVoterRewards.length > 0) {
       console.info('')
       console.info('Group voter rewards:')
-      cli.table(
+      CliUx.ux.table(
         groupVoterRewards,
         {
           groupName: { get: (e) => e.group.name },
@@ -231,7 +231,7 @@ export default class Show extends BaseCommand {
     if (validatorRewards.length > 0) {
       console.info('')
       console.info('Validator rewards:')
-      cli.table(
+      CliUx.ux.table(
         validatorRewards,
         {
           validatorName: { get: (e) => e.validator.name },
@@ -254,7 +254,7 @@ export default class Show extends BaseCommand {
     if (validatorGroupRewards.length > 0) {
       console.info('')
       console.info('Validator Group rewards:')
-      cli.table(
+      CliUx.ux.table(
         validatorGroupRewards,
         {
           groupName: { get: (e) => e.group.name },
@@ -271,7 +271,7 @@ export default class Show extends BaseCommand {
     if (accountsSlashed.length > 0) {
       console.info('')
       console.info('Slashing penalties and rewards:')
-      cli.table(
+      CliUx.ux.table(
         accountsSlashed,
         {
           slashed: {},

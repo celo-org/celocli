@@ -1,6 +1,6 @@
 import { StableToken } from '@celo/contractkit'
 import { stableTokenInfos } from '@celo/contractkit/lib/celo-tokens'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -43,23 +43,25 @@ export default class ExchangeCelo extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(ExchangeCelo)
+    const res = await this.parse(ExchangeCelo)
     const sellAmount = res.flags.value
     const minBuyAmount = res.flags.forAtLeast
     const stableToken = stableTokenOptions[res.flags.stableToken]
+    const kit = await this.getKit()
 
     let exchange
     try {
-      exchange = await this.kit.contracts.getExchange(stableToken)
+      exchange = await kit.contracts.getExchange(stableToken)
     } catch {
       failWith(`The ${stableToken} token was not deployed yet`)
     }
 
-    await newCheckBuilder(this).hasEnoughCelo(res.flags.from, sellAmount).runChecks()
+    const check = await newCheckBuilder(this).hasEnoughCelo(res.flags.from, sellAmount)
+    await check.runChecks()
 
     if (minBuyAmount.toNumber() === 0) {
       const check = await checkNotDangerousExchange(
-        this.kit,
+        kit,
         sellAmount,
         largeOrderPercentage,
         deppegedPricePercentage,
@@ -73,7 +75,7 @@ export default class ExchangeCelo extends BaseCommand {
       }
     }
 
-    const celoToken = await this.kit.contracts.getGoldToken()
+    const celoToken = await kit.contracts.getGoldToken()
 
     await displaySendTx(
       'increaseAllowance',

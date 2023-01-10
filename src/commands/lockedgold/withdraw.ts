@@ -15,9 +15,10 @@ export default class Withdraw extends BaseCommand {
   static examples = ['withdraw --from 0x47e172F6CfB6c7D01C1574fa3E2Be7CC73269D95']
 
   async run() {
-    const { flags } = this.parse(Withdraw)
-    this.kit.defaultAccount = flags.from
-    const lockedgold = await this.kit.contracts.getLockedGold()
+    const kit = await this.getKit()
+    const { flags } = await this.parse(Withdraw)
+    kit.defaultAccount = flags.from
+    const lockedgold = await kit.contracts.getLockedGold()
 
     await newCheckBuilder(this).isAccount(flags.from).runChecks()
 

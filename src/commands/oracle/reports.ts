@@ -1,5 +1,5 @@
 import { CeloContract } from '@celo/contractkit'
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { failWith } from '../../utils/cli'
 
@@ -8,7 +8,7 @@ export default class Reports extends BaseCommand {
 
   static flags = {
     ...BaseCommand.flags,
-    ...(cli.table.flags() as object),
+    ...(CliUx.ux.table.flags() as object),
   }
 
   static args = [
@@ -23,15 +23,16 @@ export default class Reports extends BaseCommand {
   static example = ['reports StableToken', 'reports', 'reports StableTokenEUR']
 
   async run() {
-    const res = this.parse(Reports)
-    const sortedOracles = await this.kit.contracts.getSortedOracles()
+    const kit = await this.getKit()
+    const res = await this.parse(Reports)
+    const sortedOracles = await kit.contracts.getSortedOracles()
 
-    const reports = await sortedOracles.getReports(res.args.token).catch((e) => failWith(e))
-    cli.table(
+    const reports: any = await sortedOracles.getReports(res.args.token).catch((e) => failWith(e))
+    CliUx.ux.table(
       reports,
       {
         address: {},
-        rate: { get: (r) => r.rate.toNumber() },
+        rate: { get: (r: any) => r.rate.toNumber() },
         timestamp: { get: (r) => r.timestamp.toNumber() },
       },
       res.flags

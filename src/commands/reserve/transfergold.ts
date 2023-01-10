@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -23,18 +23,19 @@ export default class TransferGold extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(TransferGold)
+    const kit = await this.getKit()
+    const res = await this.parse(TransferGold)
     const value = res.flags.value
     const to = res.flags.to
     const account = res.flags.from
     const useMultiSig = res.flags.useMultiSig
-    this.kit.defaultAccount = account
-    const reserve = await this.kit.contracts.getReserve()
+    kit.defaultAccount = account
+    const reserve = await kit.contracts.getReserve()
     const spenders = useMultiSig ? await reserve.getSpenders() : []
     // assumes that the multisig is the most recent spender in the spenders array
     const multiSigAddress = spenders.length > 0 ? spenders[spenders.length - 1] : ''
     const reserveSpenderMultiSig = useMultiSig
-      ? await this.kit.contracts.getMultiSig(multiSigAddress)
+      ? await kit.contracts.getMultiSig(multiSigAddress)
       : undefined
     const spender = useMultiSig ? multiSigAddress : account
 
@@ -48,7 +49,7 @@ export default class TransferGold extends BaseCommand {
       .addCheck(`${to} is another reserve address`, async () => reserve.isOtherReserveAddress(to))
       .runChecks()
 
-    const reserveTx = await reserve.transferGold(to, value)
+    const reserveTx = reserve.transferGold(to, value)
     const tx =
       reserveSpenderMultiSig === undefined
         ? reserveTx

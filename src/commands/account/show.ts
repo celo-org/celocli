@@ -16,9 +16,10 @@ export default class Show extends BaseCommand {
   static examples = ['show 0x5409ed021d9299bf6814279a6a1411a7e866a631']
 
   async run() {
-    const { args } = this.parse(Show)
+    const { args } = await this.parse(Show)
+    const kit = await this.getKit()
     await newCheckBuilder(this, args.address).isSignerOrAccount().runChecks()
-    const accounts = await this.kit.contracts.getAccounts()
+    const accounts = await kit.contracts.getAccounts()
     const address = await accounts.signerToAccount(args.address)
     printValueMapRecursive(await accounts.getAccountSummary(address))
   }

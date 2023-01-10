@@ -1,8 +1,7 @@
 import { ClaimTypes, IdentityMetadataWrapper } from '@celo/contractkit/lib/identity'
 import { sleep } from '@celo/utils/lib/async'
 import { appendPath } from '@celo/utils/lib/string'
-import { flags as oFlags } from '@oclif/command'
-import { cli } from 'cli-ux'
+import { Flags as flags, CliUx } from '@oclif/core'
 import fetch from 'cross-fetch'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -21,8 +20,8 @@ export default class TestAttestationService extends BaseCommand {
       required: true,
       description: 'The phone number to send the test message to',
     }),
-    message: oFlags.string({ required: true, description: 'The message of the SMS' }),
-    provider: oFlags.string({
+    message: flags.string({ required: true, description: 'The message of the SMS' }),
+    provider: flags.string({
       required: false,
       description: 'Test a specific provider (try "twilio" or "nexmo")',
     }),
@@ -32,13 +31,14 @@ export default class TestAttestationService extends BaseCommand {
 
   requireSynced = false
   async run() {
-    const { flags } = this.parse(TestAttestationService)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(TestAttestationService)
     const address = flags.from
     const { phoneNumber, message, provider } = flags
 
     await newCheckBuilder(this, flags.from).isSignerOrAccount().canSign(address).runChecks()
 
-    const accounts = await this.kit.contracts.getAccounts()
+    const accounts = await kit.contracts.getAccounts()
     const account = await accounts.signerToAccount(address)
 
     const hasAuthorizedAttestationSigner = await accounts.hasAuthorizedAttestationSigner(account)
@@ -68,11 +68,11 @@ export default class TestAttestationService extends BaseCommand {
       return
     }
 
-    const signature = await this.kit.connection.sign(phoneNumber + message, address)
+    const signature = await kit.connection.sign(phoneNumber + message, address)
 
     try {
       const testUrl = appendPath(attestationServiceUrlClaim.url, 'test_attestations')
-      cli.action.start(`Sending request to ${testUrl}`)
+      CliUx.ux.action.start(`Sending request to ${testUrl}`)
 
       console.info()
 
@@ -88,12 +88,12 @@ export default class TestAttestationService extends BaseCommand {
         console.error(`Response: ${await response.text()}`)
       }
 
-      cli.action.stop()
+      CliUx.ux.action.stop()
 
       const testRes = JSON.parse(await response.text())
       if (!testRes.success) {
         console.error('Request was not successful')
-        cli.styledJSON(testRes)
+        CliUx.ux.styledJSON(testRes)
         return
       }
 
@@ -102,7 +102,7 @@ export default class TestAttestationService extends BaseCommand {
       if (testRes.salt) {
         // Service supports tracking attestation delivery status.
         const getUrl = appendPath(attestationServiceUrlClaim.url, 'get_attestations')
-        cli.action.start(`Checking for delivery status at ${getUrl}`)
+        CliUx.ux.action.start(`Checking for delivery status at ${getUrl}`)
         let latestGet = null
         for (let i = 0; i < 6; i++) {
           await sleep(5 * 1000)
@@ -134,9 +134,9 @@ export default class TestAttestationService extends BaseCommand {
           }
         }
 
-        cli.action.stop()
+        CliUx.ux.action.stop()
         if (latestGet) {
-          cli.styledJSON(latestGet)
+          CliUx.ux.styledJSON(latestGet)
         }
       }
     } catch (error) {

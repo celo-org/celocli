@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import humanizeDuration from 'humanize-duration'
 import { BaseCommand } from '../../base'
@@ -23,9 +23,10 @@ export default class ValidatorGroupRegister extends BaseCommand {
   static examples = ['register --from 0x47e172F6CfB6c7D01C1574fa3E2Be7CC73269D95 --commission 0.1']
 
   async run() {
-    const res = this.parse(ValidatorGroupRegister)
+    const kit = await this.getKit()
+    const res = await this.parse(ValidatorGroupRegister)
 
-    const validators = await this.kit.contracts.getValidators()
+    const validators = await kit.contracts.getValidators()
     const commission = new BigNumber(res.flags.commission)
 
     if (!res.flags.yes) {

@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -32,14 +32,15 @@ export default class ValidatorGroupCommission extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(ValidatorGroupCommission)
+    const kit = await this.getKit()
+    const res = await this.parse(ValidatorGroupCommission)
 
     if (!(res.flags['queue-update'] || res.flags.apply)) {
       this.error(`Specify action: --apply or --queue-update`)
       return
     }
 
-    const validators = await this.kit.contracts.getValidators()
+    const validators = await kit.contracts.getValidators()
 
     if (res.flags['queue-update']) {
       const commission = new BigNumber(res.flags['queue-update'])
@@ -50,7 +51,7 @@ export default class ValidatorGroupCommission extends BaseCommand {
         // .signerAccountIsValidatorGroup()
         .runChecks()
 
-      const tx = await validators.setNextCommissionUpdate(commission)
+      const tx = validators.setNextCommissionUpdate(commission)
       await displaySendTx('setNextCommissionUpdate', tx)
     } else if (res.flags.apply) {
       await newCheckBuilder(this, res.flags.from)
@@ -61,7 +62,7 @@ export default class ValidatorGroupCommission extends BaseCommand {
         .hasCommissionUpdateDelayPassed()
         .runChecks()
 
-      const tx = await validators.updateCommission()
+      const tx = validators.updateCommission()
       await displaySendTx('updateCommission', tx)
     }
   }

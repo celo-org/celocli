@@ -22,7 +22,8 @@ export default class Withdraw extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    const { flags } = this.parse(Withdraw)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(Withdraw)
     const value = flags.value
 
     const remainingUnlockedBalance = await this.releaseGoldWrapper.getRemainingUnlockedBalance()
@@ -42,7 +43,7 @@ export default class Withdraw extends ReleaseGoldBaseCommand {
         'Contract would self-destruct with cUSD left when withdrawing the whole balance',
         async () => {
           if (value.eq(remainingUnlockedBalance)) {
-            const stableToken = await this.kit.contracts.getStableToken()
+            const stableToken = await kit.contracts.getStableToken()
             const stableBalance = await stableToken.balanceOf(this.releaseGoldWrapper.address)
             if (stableBalance.gt(0)) {
               return false
@@ -54,7 +55,7 @@ export default class Withdraw extends ReleaseGoldBaseCommand {
       )
       .runChecks()
 
-    this.kit.defaultAccount = await this.releaseGoldWrapper.getBeneficiary()
+    kit.defaultAccount = await this.releaseGoldWrapper.getBeneficiary()
     await displaySendTx('withdrawTx', this.releaseGoldWrapper.withdraw(value))
   }
 }

@@ -1,5 +1,5 @@
 import { ProposalBuilder, proposalToJSON, ProposalTransactionJSON } from '@celo/governance'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BigNumber } from 'bignumber.js'
 import { readFileSync } from 'fs'
 import { BaseCommand } from '../../base'
@@ -44,20 +44,20 @@ export default class Propose extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(Propose)
+    const res = await this.parse(Propose)
+    const kit = await this.getKit()
     const account = res.flags.from
     const deposit = new BigNumber(res.flags.deposit)
-    this.kit.defaultAccount = account
+    kit.defaultAccount = account
 
-    await newCheckBuilder(this, account)
-      .hasEnoughCelo(account, deposit)
-      .exceedsProposalMinDeposit(deposit)
-      .runChecks()
+    const check = await newCheckBuilder(this, account).hasEnoughCelo(account, deposit)
 
-    const builder = new ProposalBuilder(this.kit)
+    await check.exceedsProposalMinDeposit(deposit).runChecks()
+
+    const builder = new ProposalBuilder(kit)
 
     if (res.flags.afterExecutingID) {
-      await addExistingProposalIDToBuilder(this.kit, builder, res.flags.afterExecutingID)
+      await addExistingProposalIDToBuilder(kit, builder, res.flags.afterExecutingID)
     } else if (res.flags.afterExecutingProposal) {
       await addExistingProposalJSONFileToBuilder(builder, res.flags.afterExecutingProposal)
     }
@@ -68,17 +68,17 @@ export default class Propose extends BaseCommand {
     jsonTransactions.forEach((tx) => builder.addJsonTx(tx))
 
     // BUILD FROM CONTRACTKIT FUNCTIONS
-    // const params = await this.kit.contracts.getBlockchainParameters()
+    // const params = await kit.contracts.getBlockchainParameters()
     // builder.addTx(params.setMinimumClientVersion(1, 8, 24), { to: params.address })
     // builder.addWeb3Tx()
     // builder.addProxyRepointingTx
     const proposal = await builder.build()
-    printValueMapRecursive(await proposalToJSON(this.kit, proposal, builder.registryAdditions))
+    printValueMapRecursive(await proposalToJSON(kit, proposal, builder.registryAdditions))
 
-    const governance = await this.kit.contracts.getGovernance()
+    const governance = await kit.contracts.getGovernance()
 
     if (!res.flags.force) {
-      const ok = await checkProposal(proposal, this.kit)
+      const ok = await checkProposal(proposal, kit)
       if (!ok) {
         return
       }

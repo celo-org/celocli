@@ -27,8 +27,9 @@ export default class VerifyProofOfPossession extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(VerifyProofOfPossession)
-    const accounts = await this.kit.contracts.getAccounts()
+    const res = await this.parse(VerifyProofOfPossession)
+    const kit = await this.getKit()
+    const accounts = await kit.contracts.getAccounts()
     let valid = false
     let signature = res.flags.signature
     try {

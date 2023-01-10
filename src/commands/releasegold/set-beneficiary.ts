@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import prompts from 'prompts'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -31,11 +31,13 @@ export default class SetBeneficiary extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    const { flags } = this.parse(SetBeneficiary)
+    const kit = await this.getKit()
+    const contractAddress = await this.getContractAddress()
+    const { flags } = await this.parse(SetBeneficiary)
     const newBeneficiary = flags.beneficiary
 
     const owner = await this.releaseGoldWrapper.getOwner()
-    const releaseGoldMultiSig = await this.kit.contracts.getMultiSig(owner)
+    const releaseGoldMultiSig = await kit.contracts.getMultiSig(owner)
 
     await newCheckBuilder(this).isMultiSigOwner(flags.from, releaseGoldMultiSig).runChecks()
 
@@ -56,7 +58,7 @@ export default class SetBeneficiary extends ReleaseGoldBaseCommand {
     const currentBeneficiary = await this.releaseGoldWrapper.getBeneficiary()
     const setBeneficiaryTx = this.releaseGoldWrapper.setBeneficiary(newBeneficiary)
     const setBeneficiaryMultiSigTx = await releaseGoldMultiSig.submitOrConfirmTransaction(
-      this.contractAddress,
+      contractAddress,
       setBeneficiaryTx.txo
     )
     await displaySendTx<any>(

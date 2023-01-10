@@ -15,9 +15,10 @@ export default class ValidatorDeAffiliate extends BaseCommand {
   static examples = ['deaffiliate --from 0x47e172f6cfb6c7d01c1574fa3e2be7cc73269d95']
 
   async run() {
-    const res = this.parse(ValidatorDeAffiliate)
+    const kit = await this.getKit()
+    const res = await this.parse(ValidatorDeAffiliate)
 
-    const validators = await this.kit.contracts.getValidators()
+    const validators = await kit.contracts.getValidators()
 
     await newCheckBuilder(this, res.flags.from)
       .isSignerOrAccount()

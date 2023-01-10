@@ -1,5 +1,5 @@
 import { ProposalBuilder, proposalToJSON, ProposalTransactionJSON } from '@celo/governance'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { readFileSync } from 'fs'
 import { BaseCommand } from '../../base'
 import { printValueMapRecursive } from '../../utils/cli'
@@ -24,11 +24,12 @@ export default class TestProposal extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(TestProposal)
+    const res = await this.parse(TestProposal)
+    const kit = await this.getKit()
     const account = res.flags.from
-    this.kit.defaultAccount = account
+    kit.defaultAccount = account
 
-    const builder = new ProposalBuilder(this.kit)
+    const builder = new ProposalBuilder(kit)
 
     // BUILD FROM JSON
     const jsonString = readFileSync(res.flags.jsonTransactions).toString()
@@ -36,8 +37,8 @@ export default class TestProposal extends BaseCommand {
     jsonTransactions.forEach((tx) => builder.addJsonTx(tx))
 
     const proposal = await builder.build()
-    printValueMapRecursive(await proposalToJSON(this.kit, proposal))
+    printValueMapRecursive(await proposalToJSON(kit, proposal))
 
-    await executeProposal(proposal, this.kit, account)
+    await executeProposal(proposal, kit, account)
   }
 }
