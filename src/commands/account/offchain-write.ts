@@ -1,6 +1,6 @@
 import { PrivateNameAccessor, PublicNameAccessor } from '@celo/identity/lib/offchain/accessors/name'
 import { privateKeyToAddress } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { binaryPrompt } from '../../utils/cli'
 import { OffchainDataCommand } from '../../utils/off-chain-data'
 

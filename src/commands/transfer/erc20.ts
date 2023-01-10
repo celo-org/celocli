@@ -1,6 +1,6 @@
 import { Ierc20 } from '@celo/contractkit/lib/generated/IERC20'
 import { Erc20Wrapper } from '@celo/contractkit/lib/wrappers/Erc20Wrapper'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'

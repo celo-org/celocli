@@ -1,5 +1,5 @@
 import { eqAddress } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { cli } from 'cli-ux'
 import { BaseCommand } from '../../base'
 import { validatorTable } from '../validator/list'

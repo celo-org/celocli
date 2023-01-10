@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { IArg } from '@oclif/parser/lib/args'
 import prompts from 'prompts'
 import { BaseCommand } from '../../base'

@@ -1,7 +1,7 @@
 import { ClaimTypes, IdentityMetadataWrapper } from '@celo/contractkit/lib/identity'
 import { sleep } from '@celo/utils/lib/async'
 import { appendPath } from '@celo/utils/lib/string'
-import { flags as oFlags } from '@oclif/command'
+import { flags as oFlags } from '@oclif/core'
 import { cli } from 'cli-ux'
 import fetch from 'cross-fetch'
 import { BaseCommand } from '../../base'

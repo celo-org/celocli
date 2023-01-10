@@ -1,7 +1,7 @@
 import { Provider } from '@celo/connect/lib/types'
 import { stopProvider } from '@celo/connect/lib/utils/provider-utils'
 import { concurrentMap } from '@celo/utils/lib/async'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import chalk from 'chalk'
 import { cli } from 'cli-ux'
 import { BaseCommand } from '../../base'

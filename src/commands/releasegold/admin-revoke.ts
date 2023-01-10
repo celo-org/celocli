@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import prompts from 'prompts'
 import { displaySendTx, printValueMap } from '../../utils/cli'
 import { ReleaseGoldBaseCommand } from '../../utils/release-gold-base'

@@ -1,5 +1,5 @@
 import { createDomainClaim, serializeClaim } from '@celo/contractkit/lib/identity/claims/claim'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { ClaimCommand } from '../../utils/identity'
 
 export default class ClaimDomain extends ClaimCommand {
@@ -17,7 +17,7 @@ export default class ClaimDomain extends ClaimCommand {
   ]
   self = ClaimDomain
   async run() {
-    const res = this.parse(ClaimDomain)
+    const res = await this.parse(ClaimDomain)
     const metadata = await this.readMetadata()
 
     // If the domain claim already exists we return the existing one allowing to generate always the same
@@ -25,7 +25,8 @@ export default class ClaimDomain extends ClaimCommand {
     const addedClaim = await this.addClaim(metadata, createDomainClaim(res.flags.domain))
     this.writeMetadata(metadata)
 
-    const signature = await this.signer.sign(serializeClaim(addedClaim))
+    const signer = await this.getSigner()
+    const signature = await signer.sign(serializeClaim(addedClaim))
     const signatureBase64 = Buffer.from(signature.toString(), 'binary').toString('base64')
 
     console.info('Please add the following TXT record to your domain:')

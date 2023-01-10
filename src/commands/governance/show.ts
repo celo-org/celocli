@@ -1,6 +1,6 @@
 import { ProposalBuilder, proposalToJSON } from '@celo/governance'
 import { concurrentMap } from '@celo/utils/lib/async'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import chalk from 'chalk'
 import { toBuffer } from 'ethereumjs-util'
 import { writeFileSync } from 'fs'

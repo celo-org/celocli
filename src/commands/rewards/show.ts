@@ -3,7 +3,7 @@ import { GroupVoterReward, VoterReward } from '@celo/contractkit/lib/wrappers/El
 import { AccountSlashed } from '@celo/contractkit/lib/wrappers/LockedGold'
 import { Validator, ValidatorReward } from '@celo/contractkit/lib/wrappers/Validators'
 import { eqAddress } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { cli } from 'cli-ux'
 import { BaseCommand } from '../../base'

@@ -4,8 +4,8 @@ import { stableTokenInfos } from '@celo/contractkit/lib/celo-tokens'
 import { AzureHSMWallet } from '@celo/wallet-hsm-azure'
 import { AddressValidation, newLedgerWalletWithSetup } from '@celo/wallet-ledger'
 import { LocalWallet } from '@celo/wallet-local'
-import { Command, flags } from '@oclif/command'
-import { ParserOutput } from '@oclif/parser/lib/parse'
+import { Command, Flags as flags } from '@oclif/core'
+import { ParserOutput } from '@oclif/core/lib/interfaces'
 import chalk from 'chalk'
 import net from 'net'
 import Web3 from 'web3'
@@ -30,7 +30,7 @@ export abstract class BaseCommand extends Command {
       char: 'n',
       description: "URL of the node to run commands against (defaults to 'http://localhost:8545')",
       hidden: true,
-      parse: (nodeUrl) => {
+      parse: async (nodeUrl) => {
         switch (nodeUrl) {
           case 'local':
           case 'localhost':
@@ -102,9 +102,9 @@ export abstract class BaseCommand extends Command {
   private _kit: ContractKit | null = null
   private _wallet?: ReadOnlyWallet
 
-  get web3() {
+  async getWeb3() {
     if (!this._web3) {
-      const res: ParserOutput<any, any> = this.parse()
+      const res: ParserOutput<any, any> = await this.parse()
       const nodeUrl = (res.flags && res.flags.node) || getNodeUrl(this.config.configDir)
       this._web3 =
         nodeUrl && nodeUrl.endsWith('.ipc')
@@ -115,20 +115,21 @@ export abstract class BaseCommand extends Command {
   }
 
   async newWeb3() {
-    const res: ParserOutput<any, any> = this.parse()
+    const res: ParserOutput<any, any> = await this.parse()
     const nodeUrl = (res.flags && res.flags.node) || getNodeUrl(this.config.configDir)
     return nodeUrl && nodeUrl.endsWith('.ipc')
       ? new Web3(new Web3.providers.IpcProvider(nodeUrl, net))
       : new Web3(nodeUrl)
   }
 
-  get kit() {
+  async getKit() {
     if (!this._kit) {
-      this._kit = newKitFromWeb3(this.web3)
+      const web3 = await this.getWeb3()
+      this._kit = newKitFromWeb3(web3)
       this._kit.connection.wallet = this._wallet
     }
 
-    const res: ParserOutput<any, any> = this.parse()
+    const res: ParserOutput<any, any> = await this.parse()
     if (res.flags && res.flags.privateKey && !res.flags.useLedger && !res.flags.useAKV) {
       this._kit.connection.addAccount(res.flags.privateKey)
     }
@@ -137,10 +138,11 @@ export abstract class BaseCommand extends Command {
 
   async init() {
     if (this.requireSynced) {
-      await requireNodeIsSynced(this.web3)
+      const web3 = await this.getWeb3()
+      await requireNodeIsSynced(web3)
     }
 
-    const res: ParserOutput<any, any> = this.parse()
+    const res: ParserOutput<any, any> = await this.parse()
     if (res.flags.globalHelp) {
       console.log(chalk.red.bold('GLOBAL OPTIONS'))
       Object.entries(BaseCommand.flags).forEach(([name, flag]) => {
@@ -191,23 +193,25 @@ export abstract class BaseCommand extends Command {
     }
 
     if (res.flags.from) {
-      this.kit.defaultAccount = res.flags.from
+      const kit = await this.getKit()
+      kit.defaultAccount = res.flags.from
     }
 
     const gasCurrencyConfig = res.flags.gasCurrency
       ? (gasOptions as any)[res.flags.gasCurrency]
       : getGasCurrency(this.config.configDir)
 
+    const kit = await this.getKit()
     const setStableTokenGas = async (stable: StableToken) => {
-      await this.kit.setFeeCurrency(stableTokenInfos[stable].contract)
-      await this.kit.updateGasPriceInConnectionLayer(
-        await this.kit.registry.addressFor(stableTokenInfos[stable].contract)
+      await kit.setFeeCurrency(stableTokenInfos[stable].contract)
+      await kit.updateGasPriceInConnectionLayer(
+        await kit.registry.addressFor(stableTokenInfos[stable].contract)
       )
     }
     if (Object.keys(StableToken).includes(gasCurrencyConfig)) {
       await setStableTokenGas(StableToken[gasCurrencyConfig as keyof typeof StableToken])
-    } else if (gasCurrencyConfig === gasOptions.auto && this.kit.defaultAccount) {
-      const balances = await this.kit.getTotalBalance(this.kit.defaultAccount)
+    } else if (gasCurrencyConfig === gasOptions.auto && kit.defaultAccount) {
+      const balances = await kit.getTotalBalance(kit.defaultAccount)
       if (balances.CELO!.isZero()) {
         const stables = Object.entries(StableToken)
         for (const stable of stables) {
@@ -223,9 +227,10 @@ export abstract class BaseCommand extends Command {
     }
   }
 
-  finally(arg: Error | undefined): Promise<any> {
+  async finally(arg: Error | undefined): Promise<any> {
     try {
-      this.kit.connection.stop()
+      const kit = await this.getKit()
+      kit.connection.stop()
     } catch (error) {
       this.log(`Failed to close the connection: ${error}`)
     }

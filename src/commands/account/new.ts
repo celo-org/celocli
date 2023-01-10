@@ -7,7 +7,7 @@ import {
   validateMnemonic,
 } from '@celo/cryptographic-utils/lib/account'
 import { privateKeyToAddress } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { toChecksumAddress } from 'ethereumjs-util'
 import * as fs from 'fs-extra'
 import { BaseCommand } from '../../base'
@@ -94,7 +94,7 @@ export default class NewAccount extends BaseCommand {
   requireSynced = false
 
   async run() {
-    const res = this.parse(NewAccount)
+    const res = await this.parse(NewAccount)
     let mnemonic = NewAccount.readFile(res.flags.mnemonicPath)
     if (mnemonic) {
       mnemonic = normalizeMnemonic(mnemonic)

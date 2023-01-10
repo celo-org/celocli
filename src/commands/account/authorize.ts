@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -48,9 +48,10 @@ export default class Authorize extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(Authorize)
+    const res = await this.parse(Authorize)
+    const kit = await this.getKit()
 
-    const accounts = await this.kit.contracts.getAccounts()
+    const accounts = await kit.contracts.getAccounts()
     const sig = accounts.parseSignatureOfAddress(
       res.flags.from,
       res.flags.signer,
@@ -83,7 +84,7 @@ export default class Authorize extends BaseCommand {
         res.flags.blsPop
       )
     } else if (res.flags.role === 'validator') {
-      const validatorsWrapper = await this.kit.contracts.getValidators()
+      const validatorsWrapper = await kit.contracts.getValidators()
       tx = await accounts.authorizeValidatorSigner(res.flags.signer, sig, validatorsWrapper)
     } else if (res.flags.role === 'attestation') {
       tx = await accounts.authorizeAttestationSigner(res.flags.signer, sig)

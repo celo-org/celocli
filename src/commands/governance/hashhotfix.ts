@@ -1,6 +1,6 @@
 import { hotfixToHash, ProposalBuilder, ProposalTransactionJSON } from '@celo/governance'
 import { trimLeading0x } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { readFileSync } from 'fs-extra'
 import { BaseCommand } from '../../base'
 import { printValueMap } from '../../utils/cli'

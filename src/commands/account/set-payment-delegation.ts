@@ -1,5 +1,5 @@
 import { valueToFixidityString } from '@celo/contractkit/lib/wrappers/BaseWrapper'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { displaySendTx } from '../../utils/cli'
 import { Flags } from '../../utils/command'

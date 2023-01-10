@@ -1,6 +1,6 @@
 import { TransactionData } from '@celo/contractkit/lib/wrappers/MultiSig'
 import { newBlockExplorer } from '@celo/explorer/lib/block-explorer'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { printValueMapRecursive } from '../../utils/cli'
 import { Args } from '../../utils/command'

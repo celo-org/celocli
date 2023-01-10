@@ -1,7 +1,7 @@
 import { ContractKit } from '@celo/contractkit'
 import { OdisUtils } from '@celo/identity'
 import { AuthSigner } from '@celo/identity/lib/odis/query'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 
 export default class GetAttestations extends BaseCommand {

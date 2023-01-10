@@ -1,4 +1,4 @@
-import { LoadOptions } from '@oclif/config'
+import { LoadOptions } from '@oclif/core/lib/interfaces'
 import { BaseCommand } from '../base'
 
 export async function testLocally(
