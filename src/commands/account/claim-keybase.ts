@@ -7,8 +7,7 @@ import {
   verifyKeybaseClaim,
 } from '@celo/contractkit/lib/identity/claims/keybase'
 import { sleep } from '@celo/utils/lib/async'
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
+import { Flags as flags, CliUx } from '@oclif/core'
 import { toChecksumAddress } from 'ethereumjs-util'
 import { writeFileSync } from 'fs'
 import { tmpdir } from 'os'
@@ -32,12 +31,13 @@ export default class ClaimKeybase extends ClaimCommand {
   self = ClaimKeybase
 
   async run() {
-    const res = this.parse(ClaimKeybase)
+    const res = await this.parse(ClaimKeybase)
     const username = res.flags.username
     const metadata = await this.readMetadata()
     const accountAddress = toChecksumAddress(metadata.data.meta.address)
     const claim = createKeybaseClaim(username)
-    const signature = await this.signer.sign(hashOfClaim(claim))
+    const signer = await this.getSigner()
+    const signature = await signer.sign(hashOfClaim(claim))
     await this.addClaim(metadata, claim)
     this.writeMetadata(metadata)
 
@@ -56,7 +56,7 @@ export default class ClaimKeybase extends ClaimCommand {
   ) {
     const signedClaim = { claim, signature }
     try {
-      cli.action.start(`Attempting to automate keybase proof`)
+      CliUx.ux.action.start(`Attempting to automate keybase proof`)
       const publicFolderPrefix = `/keybase/public/${username}/`
       await this.ensureKeybaseFilePathToProof(publicFolderPrefix)
       const fileName = proofFileName(address)
@@ -67,19 +67,20 @@ export default class ClaimKeybase extends ClaimCommand {
         ['fs', 'cp', tmpPath, publicFolderPrefix + keybaseFilePathToProof + '/' + fileName],
         { silent: true }
       )
-      cli.action.stop()
+      CliUx.ux.action.stop()
 
-      cli.action.start(`Claim successfully copied to the keybase file system, verifying proof`)
+      CliUx.ux.action.start(`Claim successfully copied to the keybase file system, verifying proof`)
       // Wait for changes to propagate
       await sleep(3000)
-      const verificationError = await verifyKeybaseClaim(this.kit, claim, address)
+      const kit = await this.getKit()
+      const verificationError = await verifyKeybaseClaim(kit, claim, address)
       if (verificationError) {
         throw new Error(`Claim is not verifiable: ${verificationError}`)
       }
-      cli.action.stop()
+      CliUx.ux.action.stop()
       console.info('Claim is verifiable!')
     } catch (error) {
-      cli.action.stop(`Error: ${error}`)
+      CliUx.ux.action.stop(`Error: ${error}`)
       throw error
     }
   }
@@ -88,7 +89,7 @@ export default class ClaimKeybase extends ClaimCommand {
       if (
         (await commandExists('keybase')) &&
         (await binaryPrompt(
-          `Found keybase CLI. Do you want me to attempt to publish the claim onto the keybase fs?`
+          `Found keybase CliUx.ux. Do you want me to attempt to publish the claim onto the keybase fs?`
         ))
       ) {
         await this.attemptAutomaticProofUpload(claim, signature, username, address)
@@ -96,7 +97,7 @@ export default class ClaimKeybase extends ClaimCommand {
         this.printManualInstruction(claim, signature, username, address)
       }
     } catch (error) {
-      cli.action.stop('Error')
+      CliUx.ux.action.stop('Error')
       console.error(
         'Could not automatically finish the proving, please complete this step manually.\n\n ' +
           error

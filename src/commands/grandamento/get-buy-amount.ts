@@ -1,6 +1,6 @@
 import { StableToken } from '@celo/contractkit'
 import { toFixed } from '@celo/utils/lib/fixidity'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { printValueMap } from '../../utils/cli'
 import { Flags } from '../../utils/command'

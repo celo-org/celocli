@@ -1,5 +1,5 @@
 import { ensureLeading0x } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { AbiItem } from "web3-utils";
 import { BaseCommand } from '../../base'
 import { displayWeb3Tx } from '../../utils/cli'

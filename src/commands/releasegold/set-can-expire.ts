@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import prompts from 'prompts'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'

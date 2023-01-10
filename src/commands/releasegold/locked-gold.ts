@@ -1,5 +1,5 @@
 import { eqAddress } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { newCheckBuilder } from '../../utils/checks'
 import { binaryPrompt, displaySendTx } from '../../utils/cli'

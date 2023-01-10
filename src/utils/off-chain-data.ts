@@ -6,8 +6,8 @@ import {
   LocalStorageWriter,
 } from '@celo/identity/lib/offchain/storage-writers'
 import { privateKeyToAddress } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
-import { ParserOutput } from '@oclif/parser/lib/parse'
+import { Flags as flags } from '@oclif/core'
+import { ParserOutput } from '@oclif/core/lib/interfaces'
 import { BaseCommand } from '../base'
 import { parsePath } from './command'
 
@@ -42,10 +42,11 @@ export abstract class OffchainDataCommand extends BaseCommand {
 
     const {
       flags: { provider, directory, bucket, privateKey },
-    }: ParserOutput<any, any> = this.parse()
+    }: ParserOutput<any, any> = await this.parse()
 
     const from = privateKeyToAddress(privateKey)
-    this.offchainDataWrapper = new BasicDataWrapper(from, this.kit)
+    const kit = await this.getKit()
+    this.offchainDataWrapper = new BasicDataWrapper(from, kit)
 
     this.offchainDataWrapper.storageWriter =
       provider === StorageProviders.GCP

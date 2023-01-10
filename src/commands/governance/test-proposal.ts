@@ -1,5 +1,5 @@
 import { ProposalBuilder, proposalToJSON, ProposalTransactionJSON } from '@celo/governance'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { readFileSync } from 'fs'
 import { BaseCommand } from '../../base'
 import { printValueMapRecursive } from '../../utils/cli'

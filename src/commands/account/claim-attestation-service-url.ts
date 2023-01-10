@@ -1,5 +1,5 @@
 import { createAttestationServiceURLClaim } from '@celo/contractkit/lib/identity/claims/attestation-service-url'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { Flags } from '../../utils/command'
 import { ClaimCommand } from '../../utils/identity'
 export default class ClaimAttestationServiceUrl extends ClaimCommand {
@@ -20,12 +20,11 @@ export default class ClaimAttestationServiceUrl extends ClaimCommand {
   self = ClaimAttestationServiceUrl
 
   async run() {
-    const res = this.parse(ClaimAttestationServiceUrl)
+    const res = await this.parse(ClaimAttestationServiceUrl)
     if (!res.flags.force && !res.flags.url.startsWith('https://')) {
       this.error(
         'Attestation Service URLs should begin https:// to be accessible to all clients. Use --force to proceed anyway.'
       )
-      return
     }
     const metadata = await this.readMetadata()
     await this.addClaim(metadata, createAttestationServiceURLClaim(res.flags.url))

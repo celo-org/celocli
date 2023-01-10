@@ -18,9 +18,10 @@ export default class DeletePaymentDelegation extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(DeletePaymentDelegation)
-    this.kit.defaultAccount = res.flags.account
-    const accounts = await this.kit.contracts.getAccounts()
+    const res = await this.parse(DeletePaymentDelegation)
+    const kit = await this.getKit()
+    kit.defaultAccount = res.flags.account
+    const accounts = await kit.contracts.getAccounts()
 
     await displaySendTx('deletePaymentDelegation', accounts.deletePaymentDelegation())
 

@@ -1,5 +1,5 @@
 import { StableToken } from '@celo/contractkit'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { TransferStableBase } from '../../transfer-stable-base'
 import { enumEntriesDupWithLowercase } from '../../utils/helpers'
 

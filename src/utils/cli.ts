@@ -1,16 +1,16 @@
 import { CeloTransactionObject, CeloTx, EventLog, parseDecodedParams } from '@celo/connect'
-import { CLIError } from '@oclif/errors'
+import { CliUx } from '@oclif/core';
+import { CLIError } from '@oclif/core/lib/errors'
 import BigNumber from 'bignumber.js'
 import chalk from 'chalk'
 import Table from 'cli-table'
-import { cli } from 'cli-ux'
 
 // TODO: How can we deploy contracts with the Celo provider w/o a CeloTransactionObject?
 export async function displayWeb3Tx(name: string, txObj: any, tx?: Omit<CeloTx, 'data'>) {
-  cli.action.start(`Sending Transaction: ${name}`)
+  CliUx.ux.action.start(`Sending Transaction: ${name}`)
   const result = await txObj.send(tx)
   console.log(result)
-  cli.action.stop()
+  CliUx.ux.action.stop()
 }
 
 export async function displaySendTx<A>(
@@ -19,7 +19,7 @@ export async function displaySendTx<A>(
   tx?: Omit<CeloTx, 'data'>,
   displayEventName?: string | string[]
 ) {
-  cli.action.start(`Sending Transaction: ${name}`)
+  CliUx.ux.action.start(`Sending Transaction: ${name}`)
   try {
     const txResult = await txObj.send(tx)
 
@@ -29,7 +29,7 @@ export async function displaySendTx<A>(
     printValueMap({ txHash })
 
     const txReceipt = await txResult.waitReceipt()
-    cli.action.stop()
+    CliUx.ux.action.stop()
 
     if (displayEventName && txReceipt.events) {
       Object.entries(txReceipt.events)
@@ -45,7 +45,7 @@ export async function displaySendTx<A>(
         })
     }
   } catch (e: any) {
-    cli.action.stop(`failed: ${e.message}`)
+    CliUx.ux.action.stop(`failed: ${e.message}`)
     throw e
   }
 }
@@ -97,7 +97,7 @@ export function failWith(msg: string): never {
 }
 
 export async function binaryPrompt(promptMessage: string, defaultToNo?: boolean) {
-  const resp: string = await cli.prompt(
+  const resp: string = await CliUx.ux.prompt(
     promptMessage + ` [y/yes, n/no${defaultToNo ? ' (default)' : ''}]`,
     { required: !defaultToNo }
   )

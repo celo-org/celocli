@@ -1,5 +1,5 @@
 import { sleep } from '@celo/utils/lib/async'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { cli } from 'cli-ux'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'

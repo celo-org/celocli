@@ -1,5 +1,5 @@
 import { addressToPublicKey } from '@celo/utils/lib/signatureUtils'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import humanizeDuration from 'humanize-duration'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'

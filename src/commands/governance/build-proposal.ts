@@ -1,5 +1,5 @@
 import { InteractiveProposalBuilder, ProposalBuilder } from '@celo/governance/lib/proposals'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { writeFileSync } from 'fs-extra'
 import { BaseCommand } from '../../base'
 import {

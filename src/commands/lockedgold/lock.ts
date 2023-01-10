@@ -1,5 +1,5 @@
 import { Address } from '@celo/connect'
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'

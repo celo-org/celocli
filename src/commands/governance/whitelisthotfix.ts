@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { flags } from '@oclif/core'
 import { toBuffer } from 'ethereumjs-util'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
