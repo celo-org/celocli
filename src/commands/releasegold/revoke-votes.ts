@@ -1,5 +1,5 @@
 import { CeloTransactionObject } from '@celo/connect'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -40,7 +40,8 @@ export default class RevokeVotes extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    const { flags } = this.parse(RevokeVotes)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(RevokeVotes)
 
     await newCheckBuilder(this).isAccount(this.releaseGoldWrapper.address).runChecks()
 
@@ -48,7 +49,7 @@ export default class RevokeVotes extends ReleaseGoldBaseCommand {
     const beneficiary = await this.releaseGoldWrapper.getBeneficiary()
     const releaseOwner = await this.releaseGoldWrapper.getReleaseOwner()
 
-    this.kit.defaultAccount = isRevoked ? releaseOwner : beneficiary
+    kit.defaultAccount = isRevoked ? releaseOwner : beneficiary
 
     let txos: Array<CeloTransactionObject<void>>
     if (flags.allVotes && flags.allGroups) {

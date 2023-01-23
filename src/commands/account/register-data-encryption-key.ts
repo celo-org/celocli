@@ -1,5 +1,5 @@
 import { ensureLeading0x } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -26,14 +26,15 @@ export default class RegisterDataEncryptionKey extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(RegisterDataEncryptionKey)
-    this.kit.defaultAccount = res.flags.from
+    const res = await this.parse(RegisterDataEncryptionKey)
+    const kit = await this.getKit()
+    kit.defaultAccount = res.flags.from
 
     await newCheckBuilder(this).isAccount(res.flags.from).runChecks()
 
     const publicKey = res.flags.publicKey
 
-    const accounts = await this.kit.contracts.getAccounts()
+    const accounts = await kit.contracts.getAccounts()
     await displaySendTx(
       'RegisterDataEncryptionKey',
       accounts.setAccountDataEncryptionKey(ensureLeading0x(publicKey))

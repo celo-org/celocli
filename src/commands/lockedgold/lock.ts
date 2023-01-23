@@ -1,5 +1,5 @@
 import { Address } from '@celo/connect'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -23,10 +23,11 @@ export default class Lock extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(Lock)
+    const kit = await this.getKit()
+    const res = await this.parse(Lock)
     const address: Address = res.flags.from
 
-    this.kit.defaultAccount = address
+    kit.defaultAccount = address
     const value = new BigNumber(res.flags.value)
 
     await newCheckBuilder(this)
@@ -34,12 +35,13 @@ export default class Lock extends BaseCommand {
       .isAccount(address)
       .runChecks()
 
-    const lockedGold = await this.kit.contracts.getLockedGold()
+    const lockedGold = await kit.contracts.getLockedGold()
     const pendingWithdrawalsValue = await lockedGold.getPendingWithdrawalsTotalValue(address)
     const relockValue = BigNumber.minimum(pendingWithdrawalsValue, value)
     const lockValue = value.minus(relockValue)
 
-    await newCheckBuilder(this).hasEnoughCelo(address, lockValue).runChecks()
+    const check = await newCheckBuilder(this).hasEnoughCelo(address, lockValue)
+    await check.runChecks()
 
     const txos = await lockedGold.relock(address, relockValue)
     for (const txo of txos) {

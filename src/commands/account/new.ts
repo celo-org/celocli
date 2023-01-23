@@ -7,7 +7,8 @@ import {
   validateMnemonic,
 } from '@celo/cryptographic-utils/lib/account'
 import { privateKeyToAddress } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
+import {FlagOutput} from '@oclif/core/lib/interfaces'
 import { toChecksumAddress } from 'ethereumjs-util'
 import * as fs from 'fs-extra'
 import { BaseCommand } from '../../base'
@@ -19,7 +20,7 @@ export default class NewAccount extends BaseCommand {
   static description =
     "Creates a new account locally using the Celo Derivation Path (m/44'/52752'/0/changeIndex/addressIndex) and print out the key information. Save this information for local transaction signing or import into a Celo node. Ledger: this command has been tested swapping mnemonics with the Ledger successfully (only supports english)"
 
-  static flags = {
+  static flags: FlagOutput = {
     ...BaseCommand.flags,
     passphrasePath: flags.string({
       description:
@@ -94,7 +95,7 @@ export default class NewAccount extends BaseCommand {
   requireSynced = false
 
   async run() {
-    const res = this.parse(NewAccount)
+    const res = await this.parse(NewAccount)
     let mnemonic = NewAccount.readFile(res.flags.mnemonicPath)
     if (mnemonic) {
       mnemonic = normalizeMnemonic(mnemonic)

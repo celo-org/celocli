@@ -1,5 +1,5 @@
 import { InteractiveProposalBuilder, ProposalBuilder } from '@celo/governance/lib/proposals'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { writeFileSync } from 'fs-extra'
 import { BaseCommand } from '../../base'
 import {
@@ -34,12 +34,13 @@ export default class BuildProposal extends BaseCommand {
   static examples = ['build-proposal --output ./transactions.json']
 
   async run() {
-    const res = this.parse(BuildProposal)
+    const res = await this.parse(BuildProposal)
+    const kit = await this.getKit()
 
-    const builder = new ProposalBuilder(this.kit)
+    const builder = new ProposalBuilder(kit)
 
     if (res.flags.afterExecutingID) {
-      await addExistingProposalIDToBuilder(this.kit, builder, res.flags.afterExecutingID)
+      await addExistingProposalIDToBuilder(kit, builder, res.flags.afterExecutingID)
     } else if (res.flags.afterExecutingProposal) {
       await addExistingProposalJSONFileToBuilder(builder, res.flags.afterExecutingProposal)
     }
@@ -54,6 +55,6 @@ export default class BuildProposal extends BaseCommand {
     output.forEach((tx) => builder.addJsonTx(tx))
     const proposal = await builder.build()
 
-    await checkProposal(proposal, this.kit)
+    await checkProposal(proposal, kit)
   }
 }

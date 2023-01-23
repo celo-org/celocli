@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -16,18 +16,19 @@ export default class Execute extends BaseCommand {
   static examples = ['execute --proposalID 99 --from 0x5409ed021d9299bf6814279a6a1411a7e866a631']
 
   async run() {
-    const res = this.parse(Execute)
+    const res = await this.parse(Execute)
+    const kit = await this.getKit()
     const id = res.flags.proposalID
     const account = res.flags.from
 
-    this.kit.defaultAccount = account
+    kit.defaultAccount = account
     await newCheckBuilder(this, account)
       .proposalExists(id)
       .proposalInStage(id, 'Execution')
       .proposalIsPassing(id)
       .runChecks()
 
-    const governance = await this.kit.contracts.getGovernance()
+    const governance = await kit.contracts.getGovernance()
     await displaySendTx('executeTx', await governance.execute(id), {}, 'ProposalExecuted')
   }
 }

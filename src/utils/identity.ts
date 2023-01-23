@@ -9,7 +9,7 @@ import { verifyClaim } from '@celo/contractkit/lib/identity/claims/verify'
 import { eqAddress } from '@celo/utils/lib/address'
 import { concurrentMap } from '@celo/utils/lib/async'
 import { NativeSigner } from '@celo/utils/lib/signatureUtils'
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core';
 import { toChecksumAddress } from 'ethereumjs-util'
 import { writeFileSync } from 'fs'
 import moment from 'moment'
@@ -34,7 +34,8 @@ export abstract class ClaimCommand extends BaseCommand {
     if (eqAddress(address, from)) {
       return
     }
-    const accounts = await this.kit.contracts.getAccounts()
+    const kit = await this.getKit()
+    const accounts = await kit.contracts.getAccounts()
     const signers = await accounts.getCurrentSigners(address)
     if (!signers.some((a) => eqAddress(a, from))) {
       throw new Error(
@@ -44,51 +45,53 @@ export abstract class ClaimCommand extends BaseCommand {
   }
 
   protected readMetadata = async () => {
-    const { args, flags } = this.parse(this.self)
+    const { args, flags } = await this.parse(this.self)
     const filePath = args.file
     try {
-      cli.action.start(`Read Metadata from ${filePath}`)
+      CliUx.ux.action.start(`Read Metadata from ${filePath}`)
+      const kit = await this.getKit()
       const data = await IdentityMetadataWrapper.fromFile(
-        await this.kit.contracts.getAccounts(),
+        await kit.contracts.getAccounts(),
         filePath
       )
       await this.checkMetadataAddress(data.data.meta.address, flags.from)
-      cli.action.stop()
+      CliUx.ux.action.stop()
       return data
     } catch (error) {
-      cli.action.stop(`Error: ${error}`)
+      CliUx.ux.action.stop(`Error: ${error}`)
       throw error
     }
   }
 
-  protected get signer() {
-    const res = this.parse(this.self)
+  protected async getSigner() {
+    const res = await this.parse(this.self)
     const address = toChecksumAddress(res.flags.from)
-    return NativeSigner(this.kit.connection.sign, address)
+    const kit = await this.getKit()
+    return NativeSigner(kit.connection.sign, address)
   }
 
   protected async addClaim(metadata: IdentityMetadataWrapper, claim: Claim): Promise<Claim> {
     try {
-      cli.action.start(`Add claim`)
-      const addedClaim = await metadata.addClaim(claim, this.signer)
-      cli.action.stop()
+      CliUx.ux.action.start(`Add claim`)
+      const addedClaim = await metadata.addClaim(claim, await this.getSigner())
+      CliUx.ux.action.stop()
       return addedClaim
     } catch (error) {
-      cli.action.stop(`Error: ${error}`)
+      CliUx.ux.action.stop(`Error: ${error}`)
       throw error
     }
   }
 
-  protected writeMetadata = (metadata: IdentityMetadataWrapper) => {
-    const { args } = this.parse(this.self)
+  protected writeMetadata = async (metadata: IdentityMetadataWrapper) => {
+    const { args } = await this.parse(this.self)
     const filePath = args.file
 
     try {
-      cli.action.start(`Write Metadata to ${filePath}`)
+      CliUx.ux.action.start(`Write Metadata to ${filePath}`)
       writeFileSync(filePath, metadata.toString())
-      cli.action.stop()
+      CliUx.ux.action.stop()
     } catch (error) {
-      cli.action.stop(`Error: ${error}`)
+      CliUx.ux.action.stop(`Error: ${error}`)
       throw error
     }
   }
@@ -146,7 +149,7 @@ export const displayMetadata = async (
     }
   })
 
-  cli.table(
+  CliUx.ux.table(
     data,
     {
       type: { header: 'Type' },

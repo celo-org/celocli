@@ -1,6 +1,6 @@
 import { StableToken } from '@celo/contractkit'
 import { stableTokenInfos } from '@celo/contractkit/lib/celo-tokens'
-import { ParserOutput } from '@oclif/parser/lib/parse'
+import { ParserOutput } from '@oclif/core/lib/interfaces'
 import BigNumber from 'bignumber.js'
 import { BaseCommand } from './base'
 import { newCheckBuilder } from './utils/checks'
@@ -30,29 +30,30 @@ export default class ExchangeStableBase extends BaseCommand {
   protected _stableCurrency: StableToken | null = null
 
   async run() {
-    const res: ParserOutput<any, any> = this.parse()
+    const kit = await this.getKit()
+    const res: ParserOutput<any, any> = await this.parse()
     const sellAmount = res.flags.value
     const minBuyAmount = res.flags.forAtLeast
 
     if (!this._stableCurrency) {
       throw new Error('Stable currency not set')
     }
-    await newCheckBuilder(this)
+    const check = await newCheckBuilder(this)
       .hasEnoughStable(res.flags.from, sellAmount, this._stableCurrency)
-      .runChecks()
+    await check.runChecks()
 
     let stableToken
     let exchange
     try {
-      stableToken = await this.kit.contracts.getStableToken(this._stableCurrency)
-      exchange = await this.kit.contracts.getExchange(this._stableCurrency)
+      stableToken = await kit.contracts.getStableToken(this._stableCurrency)
+      exchange = await kit.contracts.getExchange(this._stableCurrency)
     } catch {
       failWith(`The ${this._stableCurrency} token was not deployed yet`)
     }
 
     if (minBuyAmount.toNumber() === 0) {
       const check = await checkNotDangerousExchange(
-        this.kit,
+        kit,
         sellAmount,
         largeOrderPercentage,
         deppegedPricePercentage,

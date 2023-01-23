@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
 import { Flags } from '../../utils/command'
@@ -46,7 +46,8 @@ export default class Authorize extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    const { flags } = this.parse(Authorize)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(Authorize)
     const role = flags.role
 
     // Check that the account is registered on-chain.
@@ -64,7 +65,7 @@ export default class Authorize extends ReleaseGoldBaseCommand {
     }
     await checker.runChecks()
 
-    const accounts = await this.kit.contracts.getAccounts()
+    const accounts = await kit.contracts.getAccounts()
     const sig = accounts.parseSignatureOfAddress(
       this.releaseGoldWrapper.address,
       flags.signer,
@@ -72,7 +73,7 @@ export default class Authorize extends ReleaseGoldBaseCommand {
     )
 
     const isRevoked = await this.releaseGoldWrapper.isRevoked()
-    this.kit.defaultAccount = isRevoked
+    kit.defaultAccount = isRevoked
       ? await this.releaseGoldWrapper.getReleaseOwner()
       : await this.releaseGoldWrapper.getBeneficiary()
     let tx: any

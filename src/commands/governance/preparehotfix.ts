@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { toBuffer } from 'ethereumjs-util'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -19,11 +19,12 @@ export default class PrepareHotfix extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(PrepareHotfix)
+    const res = await this.parse(PrepareHotfix)
+    const kit = await this.getKit()
     const account = res.flags.from
-    this.kit.defaultAccount = account
+    kit.defaultAccount = account
 
-    const governance = await this.kit.contracts.getGovernance()
+    const governance = await kit.contracts.getGovernance()
     const hash = toBuffer(res.flags.hash) as Buffer
 
     await newCheckBuilder(this, account)
@@ -33,7 +34,7 @@ export default class PrepareHotfix extends BaseCommand {
         `Hotfix 0x${hash.toString('hex')} not already prepared for current epoch`,
         async () => {
           const { preparedEpoch } = await governance.getHotfixRecord(hash)
-          const validators = await this.kit.contracts.getValidators()
+          const validators = await kit.contracts.getValidators()
           const currentEpoch = await validators.getEpochNumber()
           return preparedEpoch.lt(currentEpoch)
         }

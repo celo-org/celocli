@@ -1,6 +1,5 @@
 import { sleep } from '@celo/utils/lib/async'
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
+import { Flags as flags, CliUx } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -21,22 +20,23 @@ export default class ElectionVote extends BaseCommand {
     'activate --from 0x4443d0349e8b3075cba511a0a87796597602a0f1 --wait',
   ]
   async run() {
-    const res = this.parse(ElectionVote)
+    const res = await this.parse(ElectionVote)
+    const kit = await this.getKit()
 
     await newCheckBuilder(this, res.flags.from).isSignerOrAccount().runChecks()
 
-    const election = await this.kit.contracts.getElection()
-    const accounts = await this.kit.contracts.getAccounts()
+    const election = await kit.contracts.getElection()
+    const accounts = await kit.contracts.getAccounts()
     const account = await accounts.voteSignerToAccount(res.flags.from)
     const hasPendingVotes = await election.hasPendingVotes(account)
     if (hasPendingVotes) {
       if (res.flags.wait) {
         // Spin until pending votes become activatable.
-        cli.action.start(`Waiting until pending votes can be activated`)
+        CliUx.ux.action.start(`Waiting until pending votes can be activated`)
         while (!(await election.hasActivatablePendingVotes(account))) {
           await sleep(1000)
         }
-        cli.action.stop()
+        CliUx.ux.action.stop()
       }
       const txos = await election.activate(account)
       for (const txo of txos) {

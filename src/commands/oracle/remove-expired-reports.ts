@@ -29,9 +29,10 @@ export default class RemoveExpiredReports extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(RemoveExpiredReports)
+    const kit = await this.getKit()
+    const res = await this.parse(RemoveExpiredReports)
 
-    const sortedOracles = await this.kit.contracts.getSortedOracles().catch((e) => failWith(e))
+    const sortedOracles = await kit.contracts.getSortedOracles().catch((e) => failWith(e))
     const txo = await sortedOracles.removeExpiredReports(res.args.token)
     await displaySendTx('removeExpiredReports', txo)
   }

@@ -13,10 +13,11 @@ export default class Dequeue extends BaseCommand {
   static examples = ['dequeue --from 0x5409ed021d9299bf6814279a6a1411a7e866a631']
 
   async run() {
-    const res = this.parse(Dequeue)
+    const res = await this.parse(Dequeue)
+    const kit = await this.getKit()
     const account = res.flags.from
-    this.kit.defaultAccount = account
-    const governance = await this.kit.contracts.getGovernance()
+    kit.defaultAccount = account
+    const governance = await kit.contracts.getGovernance()
 
     await displaySendTx('dequeue', governance.dequeueProposalsIfReady(), {}, 'ProposalsDequeued')
   }

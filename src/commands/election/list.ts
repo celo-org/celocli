@@ -1,4 +1,4 @@
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import { BaseCommand } from '../../base'
 
 export default class List extends BaseCommand {
@@ -7,24 +7,25 @@ export default class List extends BaseCommand {
 
   static flags = {
     ...BaseCommand.flags,
-    ...(cli.table.flags() as object),
+    ...(CliUx.ux.table.flags() as object),
   }
 
   static examples = ['list']
 
   async run() {
-    const res = this.parse(List)
-    cli.action.start('Fetching validator group vote totals')
-    const election = await this.kit.contracts.getElection()
+    const res = await this.parse(List)
+    const kit = await this.getKit()
+    CliUx.ux.action.start('Fetching validator group vote totals')
+    const election = await kit.contracts.getElection()
     const groupVotes = await election.getValidatorGroupsVotes()
-    cli.action.stop()
-    cli.table(
+    CliUx.ux.action.stop()
+    CliUx.ux.table(
       groupVotes,
       {
         address: {},
         name: {},
-        votes: { get: (g) => g.votes.toFixed() },
-        capacity: { get: (g) => g.capacity.toFixed() },
+        votes: { get: (g: any) => g.votes.toFixed() },
+        capacity: { get: (g: any) => g.capacity.toFixed() },
         eligible: {},
       },
       res.flags

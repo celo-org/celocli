@@ -1,6 +1,5 @@
 import { IdentityMetadataWrapper } from '@celo/contractkit'
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
+import { CliUx, Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -23,7 +22,7 @@ export default class RegisterMetadata extends BaseCommand {
     }),
     force: flags.boolean({ description: 'Ignore metadata validity checks' }),
 
-    ...(cli.table.flags() as object),
+    ...(CliUx.ux.table.flags() as object),
   }
 
   static examples = [
@@ -31,18 +30,19 @@ export default class RegisterMetadata extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(RegisterMetadata)
+    const res = await this.parse(RegisterMetadata)
 
     await newCheckBuilder(this).isAccount(res.flags.from).runChecks()
 
     const metadataURL = res.flags.url
-    const accounts = await this.kit.contracts.getAccounts()
+    const kit = await this.getKit()
+    const accounts = await kit.contracts.getAccounts()
 
     if (!res.flags.force) {
       try {
         const metadata = await IdentityMetadataWrapper.fetchFromURL(accounts, metadataURL)
         console.info('Metadata contains the following claims: \n')
-        await displayMetadata(metadata, this.kit, res.flags)
+        await displayMetadata(metadata, kit, res.flags)
         console.info() // Print a newline.
       } catch (error: any) {
         console.error(`Metadata could not be retrieved from ${metadataURL}: ${error.toString()}`)

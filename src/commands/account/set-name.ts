@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -21,9 +21,10 @@ export default class SetName extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(SetName)
-    this.kit.defaultAccount = res.flags.account
-    const accounts = await this.kit.contracts.getAccounts()
+    const res = await this.parse(SetName)
+    const kit = await this.getKit()
+    kit.defaultAccount = res.flags.account
+    const accounts = await kit.contracts.getAccounts()
 
     await newCheckBuilder(this).isAccount(res.flags.account).runChecks()
     await displaySendTx('setName', accounts.setName(res.flags.name))

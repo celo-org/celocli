@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import {AbiItem} from "web3-utils";
 import { BaseCommand } from '../../base'
 import { Flags } from '../../utils/command'
@@ -29,8 +29,9 @@ export default class DKGGet extends BaseCommand {
   }
 
   async run() {
-    const res = this.parse(DKGGet)
-    const web3 = this.kit.connection.web3
+    const res = await this.parse(DKGGet)
+    const kit = await this.getKit()
+    const web3 = kit.connection.web3
 
     const dkg = new web3.eth.Contract(DKG.abi as unknown as AbiItem[], res.flags.address)
 

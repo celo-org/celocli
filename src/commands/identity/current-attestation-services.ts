@@ -1,7 +1,7 @@
-import { AttestationServiceStatusState } from '@celo/contractkit/lib/wrappers/Attestations'
+import { AttestationServiceStatusState, AttestationServiceStatusResponse } from '@celo/contractkit/lib/wrappers/Attestations'
 import { concurrentMap } from '@celo/utils/lib/async'
 import chalk from 'chalk'
-import { cli } from 'cli-ux'
+import { CliUx } from '@oclif/core'
 import { BaseCommand } from '../../base'
 
 export default class AttestationServicesCurrent extends BaseCommand {
@@ -10,28 +10,29 @@ export default class AttestationServicesCurrent extends BaseCommand {
 
   static flags = {
     ...BaseCommand.flags,
-    ...(cli.table.flags() as object),
+    ...(CliUx.ux.table.flags() as object),
   }
 
   async run() {
-    const res = this.parse(AttestationServicesCurrent)
-    cli.action.start('Fetching currently elected Validators')
-    const election = await this.kit.contracts.getElection()
-    const validators = await this.kit.contracts.getValidators()
-    const attestations = await this.kit.contracts.getAttestations()
+    const kit = await this.getKit()
+    const res = await this.parse(AttestationServicesCurrent)
+    CliUx.ux.action.start('Fetching currently elected Validators')
+    const election = await kit.contracts.getElection()
+    const validators = await kit.contracts.getValidators()
+    const attestations = await kit.contracts.getAttestations()
     const signers = await election.getCurrentValidatorSigners()
     const validatorList = await Promise.all(
       signers.map((addr) => validators.getValidatorFromSigner(addr))
     )
-    const validatorInfo = await concurrentMap(
+    const validatorInfo: any = await concurrentMap(
       5,
       validatorList,
       attestations.getAttestationServiceStatus.bind(attestations)
     )
 
-    cli.action.stop()
-    cli.table(
-      validatorInfo.sort((a, b) => {
+    CliUx.ux.action.stop()
+    CliUx.ux.table(
+      validatorInfo.sort((a: AttestationServiceStatusResponse, b: AttestationServiceStatusResponse) => {
         if (a.affiliation === b.affiliation) {
           return 0
         } else if (a.affiliation === null) {

@@ -30,9 +30,10 @@ export default class SetWallet extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(SetWallet)
-    this.kit.defaultAccount = res.flags.account
-    const accounts = await this.kit.contracts.getAccounts()
+    const res = await this.parse(SetWallet)
+    const kit = await this.getKit()
+    kit.defaultAccount = res.flags.account
+    const accounts = await kit.contracts.getAccounts()
 
     await newCheckBuilder(this).isAccount(res.flags.account).runChecks()
 

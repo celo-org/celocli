@@ -1,5 +1,5 @@
 import { eqAddress } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { newCheckBuilder } from '../../utils/checks'
 import { binaryPrompt, displaySendTx } from '../../utils/cli'
@@ -29,32 +29,34 @@ export default class LockedGold extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    const { flags } = this.parse(LockedGold)
+    const kit = await this.getKit()
+    const contractAddress = await this.getContractAddress()
+    const { flags } = await this.parse(LockedGold)
     const value = new BigNumber(flags.value)
-    const checkBuilder = newCheckBuilder(this, this.contractAddress).isAccount(this.contractAddress)
+    const checkBuilder = newCheckBuilder(this, contractAddress).isAccount(contractAddress)
     const isRevoked = await this.releaseGoldWrapper.isRevoked()
     const beneficiary = await this.releaseGoldWrapper.getBeneficiary()
     const releaseOwner = await this.releaseGoldWrapper.getReleaseOwner()
-    const lockedGold = await this.kit.contracts.getLockedGold()
-    this.kit.defaultAccount = isRevoked ? releaseOwner : beneficiary
+    const lockedGold = await kit.contracts.getLockedGold()
+    kit.defaultAccount = isRevoked ? releaseOwner : beneficiary
 
     if (flags.action === 'lock') {
       // Must verify contract is account before checking pending withdrawals
       await checkBuilder.addCheck('Is not revoked', () => !isRevoked).runChecks()
       const pendingWithdrawalsValue = await lockedGold.getPendingWithdrawalsTotalValue(
-        this.contractAddress
+        contractAddress
       )
       const relockValue = BigNumber.minimum(pendingWithdrawalsValue, value)
       const lockValue = value.minus(relockValue)
-      await newCheckBuilder(this, this.contractAddress)
-        .hasEnoughCelo(this.contractAddress, lockValue)
-        .runChecks()
+      const check = await newCheckBuilder(this, contractAddress)
+        .hasEnoughCelo(contractAddress, lockValue)
+      await check.runChecks()
       const txos = await this.releaseGoldWrapper.relockGold(relockValue)
       for (const txo of txos) {
         await displaySendTx('lockedGoldRelock', txo, { from: beneficiary })
       }
       if (lockValue.gt(new BigNumber(0))) {
-        const accounts = await this.kit.contracts.getAccounts()
+        const accounts = await kit.contracts.getAccounts()
         const totalValue = await this.releaseGoldWrapper.getRemainingUnlockedBalance()
         const remaining = totalValue.minus(lockValue)
         console.log('remaining', remaining.toFixed())
@@ -78,10 +80,10 @@ export default class LockedGold extends ReleaseGoldBaseCommand {
         await displaySendTx('lockedGoldLock', this.releaseGoldWrapper.lockGold(lockValue))
       }
     } else if (flags.action === 'unlock') {
-      await checkBuilder
-        .isNotVoting(this.contractAddress)
+      const check = await checkBuilder
+        .isNotVoting(contractAddress)
         .hasEnoughLockedGoldToUnlock(value)
-        .runChecks()
+      await check.runChecks()
       await displaySendTx('lockedGoldUnlock', this.releaseGoldWrapper.unlockGold(flags.value))
     } else if (flags.action === 'withdraw') {
       await checkBuilder.runChecks()
@@ -89,7 +91,7 @@ export default class LockedGold extends ReleaseGoldBaseCommand {
       // eslint-disable-next-line no-constant-condition
       while (true) {
         let madeWithdrawal = false
-        const pendingWithdrawals = await lockedGold.getPendingWithdrawals(this.contractAddress)
+        const pendingWithdrawals = await lockedGold.getPendingWithdrawals(contractAddress)
         for (let i = 0; i < pendingWithdrawals.length; i++) {
           const pendingWithdrawal = pendingWithdrawals[i]
           if (pendingWithdrawal.time.isLessThan(currentTime)) {
@@ -104,7 +106,7 @@ export default class LockedGold extends ReleaseGoldBaseCommand {
         if (!madeWithdrawal) break
       }
       const remainingPendingWithdrawals = await lockedGold.getPendingWithdrawals(
-        this.contractAddress
+        contractAddress
       )
       for (const pendingWithdrawal of remainingPendingWithdrawals) {
         console.log(

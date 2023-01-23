@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { printValueMapRecursive } from '../../utils/cli'
 
@@ -16,16 +16,17 @@ export default class Info extends BaseCommand {
   }
 
   async run() {
-    const res = this.parse(Info)
+    const kit = await this.getKit()
+    const res = await this.parse(Info)
 
-    const blockNumber = await this.kit.connection.getBlockNumber()
-    const latestEpochNumber = await this.kit.getEpochNumberOfBlock(blockNumber)
-    const epochSize = await this.kit.getEpochSize()
+    const blockNumber = await kit.connection.getBlockNumber()
+    const latestEpochNumber = await kit.getEpochNumberOfBlock(blockNumber)
+    const epochSize = await kit.getEpochSize()
 
     const fetchEpochInfo = async (epochNumber: number) => ({
       number: epochNumber,
-      start: await this.kit.getFirstBlockNumberForEpoch(epochNumber),
-      end: await this.kit.getLastBlockNumberForEpoch(epochNumber),
+      start: await kit.getFirstBlockNumberForEpoch(epochNumber),
+      end: await kit.getLastBlockNumberForEpoch(epochNumber),
     })
 
     const n = res.flags.lastN

@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
 import { ReleaseGoldBaseCommand } from '../../utils/release-gold-base'
@@ -31,7 +31,8 @@ export default class SetAccount extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    const { flags } = this.parse(SetAccount)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(SetAccount)
     const isRevoked = await this.releaseGoldWrapper.isRevoked()
 
     await newCheckBuilder(this)
@@ -50,7 +51,7 @@ export default class SetAccount extends ReleaseGoldBaseCommand {
       return this.error(`Invalid property provided`)
     }
 
-    this.kit.defaultAccount = await this.releaseGoldWrapper.getBeneficiary()
+    kit.defaultAccount = await this.releaseGoldWrapper.getBeneficiary()
     await displaySendTx('setAccount' + flags.property + 'Tx', tx)
   }
 }

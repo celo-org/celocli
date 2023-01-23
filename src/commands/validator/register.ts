@@ -1,5 +1,5 @@
 import { addressToPublicKey } from '@celo/utils/lib/signatureUtils'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import humanizeDuration from 'humanize-duration'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -23,10 +23,12 @@ export default class ValidatorRegister extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(ValidatorRegister)
+    const kit = await this.getKit()
+    const web3 = await this.getWeb3()
+    const res = await this.parse(ValidatorRegister)
 
-    const validators = await this.kit.contracts.getValidators()
-    const accounts = await this.kit.contracts.getAccounts()
+    const validators = await kit.contracts.getValidators()
+    const accounts = await kit.contracts.getAccounts()
 
     if (!res.flags.yes) {
       const requirements = await validators.getValidatorLockedGoldRequirements()
@@ -62,7 +64,7 @@ export default class ValidatorRegister extends BaseCommand {
 
     // register encryption key on accounts contract
     // TODO: Use a different key data encryption
-    const pubKey = await addressToPublicKey(res.flags.from, this.web3.eth.sign)
+    const pubKey = await addressToPublicKey(res.flags.from, web3.eth.sign)
     // TODO fix typing
     const setKeyTx = accounts.setAccountDataEncryptionKey(pubKey as any)
     await displaySendTx('Set encryption key', setKeyTx)

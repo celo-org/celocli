@@ -48,19 +48,20 @@ class CheckBuilder {
 
   constructor(private cmd: BaseCommand, private signer?: Address) {}
 
-  get web3() {
-    return this.cmd.web3
+  async getWeb3() {
+    return await this.cmd.getWeb3()
   }
 
-  get kit() {
-    return this.cmd.kit
+  async getKit() {
+    return await this.cmd.getKit()
   }
 
   withValidators<A>(
     f: (validators: ValidatorsWrapper, signer: Address, account: Address, ctx: CheckBuilder) => A
   ): () => Promise<Resolve<A>> {
     return async () => {
-      const validators = await this.kit.contracts.getValidators()
+      const kit = await this.getKit();
+      const validators = await kit.contracts.getValidators()
       if (this.signer) {
         const account = await validators.signerToAccount(this.signer)
         return f(validators, this.signer, account, this) as Resolve<A>
@@ -79,8 +80,9 @@ class CheckBuilder {
     ) => A
   ): () => Promise<Resolve<A>> {
     return async () => {
-      const lockedGold = await this.kit.contracts.getLockedGold()
-      const validators = await this.kit.contracts.getValidators()
+      const kit = await this.getKit();
+      const lockedGold = await kit.contracts.getLockedGold()
+      const validators = await kit.contracts.getValidators()
       if (this.signer) {
         const account = await validators.signerToAccount(this.signer)
         return f(lockedGold, this.signer, account, validators) as Resolve<A>
@@ -92,14 +94,16 @@ class CheckBuilder {
 
   withAccounts<A>(f: (accounts: AccountsWrapper) => A): () => Promise<Resolve<A>> {
     return async () => {
-      const accounts = await this.kit.contracts.getAccounts()
+      const kit = await this.getKit()
+      const accounts = await kit.contracts.getAccounts()
       return f(accounts) as Resolve<A>
     }
   }
 
   withGrandaMento<A>(f: (accounts: GrandaMentoWrapper) => A): () => Promise<Resolve<A>> {
     return async () => {
-      const accounts = await this.kit.contracts.getGrandaMento()
+      const kit = await this.getKit()
+      const accounts = await kit.contracts.getGrandaMento()
       return f(accounts) as Resolve<A>
     }
   }
@@ -108,7 +112,8 @@ class CheckBuilder {
     f: (governance: GovernanceWrapper, signer: Address, account: Address, ctx: CheckBuilder) => A
   ): () => Promise<Resolve<A>> {
     return async () => {
-      const governance = await this.kit.contracts.getGovernance()
+      const kit = await this.getKit()
+      const governance = await kit.contracts.getGovernance()
       return f(governance, '', '', this) as Resolve<A>
     }
   }
@@ -210,8 +215,9 @@ class CheckBuilder {
   canSign = (account: Address) =>
     this.addCheck('Account can sign', async () => {
       try {
+        const kit = await this.getKit()
         const message = 'test'
-        const signature = await this.kit.connection.sign(message, account)
+        const signature = await kit.connection.sign(message, account)
         return verifySignature(message, signature, account)
       } catch (error) {
         console.error(error)
@@ -343,34 +349,37 @@ class CheckBuilder {
       `${address} is currently voting in governance. Revoke your upvotes or wait for the referendum to end.`
     )
 
-  hasEnoughCelo = (account: Address, value: BigNumber) => {
-    const valueInEth = this.kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
+  hasEnoughCelo = async (account: Address, value: BigNumber) => {
+    const kit = await this.getKit()
+    const valueInEth = kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
     return this.addCheck(`Account has at least ${valueInEth} CELO`, () =>
-      this.kit.contracts
+      kit.contracts
         .getGoldToken()
         .then((goldToken) => goldToken.balanceOf(account))
         .then((balance) => balance.gte(value))
     )
   }
 
-  hasEnoughStable = (
+  hasEnoughStable = async (
     account: Address,
     value: BigNumber,
     stable: StableToken = StableToken.cUSD
   ) => {
-    const valueInEth = this.kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
+    const kit = await this.getKit();
+    const valueInEth = kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
     return this.addCheck(`Account has at least ${valueInEth} ${stable}`, () =>
-      this.kit.contracts
+      kit.contracts
         .getStableToken(stable)
         .then((stableToken) => stableToken.balanceOf(account))
         .then((balance) => balance.gte(value))
     )
   }
 
-  hasEnoughErc20 = (account: Address, value: BigNumber, erc20: Address) => {
-    const valueInEth = this.kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
+  hasEnoughErc20 = async (account: Address, value: BigNumber, erc20: Address) => {
+    const kit = await this.getKit();
+    const valueInEth = kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
     return this.addCheck(`Account has at least ${valueInEth} erc20 token`, () =>
-      this.kit.contracts
+      kit.contracts
         .getErc20(erc20)
         .then((goldToken) => goldToken.balanceOf(account))
         .then((balance) => balance.gte(value))
@@ -391,8 +400,9 @@ class CheckBuilder {
       )
     )
 
-  hasEnoughLockedGold = (value: BigNumber) => {
-    const valueInEth = this.kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
+  hasEnoughLockedGold = async (value: BigNumber) => {
+    const kit = await this.getKit()
+    const valueInEth = kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
     return this.addCheck(
       `Account has at least ${valueInEth} Locked Gold`,
       this.withLockedGold(async (lockedGold, _signer, account) =>
@@ -401,8 +411,9 @@ class CheckBuilder {
     )
   }
 
-  hasEnoughNonvotingLockedGold = (value: BigNumber) => {
-    const valueInEth = this.kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
+  hasEnoughNonvotingLockedGold = async (value: BigNumber) => {
+    const kit = await this.getKit()
+    const valueInEth = kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
     return this.addCheck(
       `Account has at least ${valueInEth} non-voting Locked Gold`,
       this.withLockedGold(async (lockedGold, _signer, account) =>
@@ -411,8 +422,9 @@ class CheckBuilder {
     )
   }
 
-  hasEnoughLockedGoldToUnlock = (value: BigNumber) => {
-    const valueInEth = this.kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
+  hasEnoughLockedGoldToUnlock = async (value: BigNumber) => {
+    const kit = await this.getKit()
+    const valueInEth = kit.connection.web3.utils.fromWei(value.toFixed(), 'ether')
     return this.addCheck(
       `Account has at least ${valueInEth} non-voting Locked Gold over requirement`,
       this.withLockedGold(async (lockedGold, _signer, account, validators) => {
@@ -476,7 +488,8 @@ class CheckBuilder {
     this.addCheck(
       'The Commission update delay has already passed',
       this.withValidators(async (validators, _signer, account, ctx) => {
-        const blockNumber = await ctx.web3.eth.getBlockNumber()
+        const web3 = await ctx.getWeb3()
+        const blockNumber = await web3.eth.getBlockNumber()
         const vg = await validators.getValidatorGroup(account)
         return vg.nextCommissionBlock.lte(blockNumber)
       })

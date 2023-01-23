@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -33,9 +33,10 @@ export default class SetBitmapsCommand extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(SetBitmapsCommand)
+    const kit = await this.getKit()
+    const res = await this.parse(SetBitmapsCommand)
 
-    const downtimeSlasher = await this.kit.contracts.getDowntimeSlasher()
+    const downtimeSlasher = await kit.contracts.getDowntimeSlasher()
 
     const intervals =
       res.flags.slashableDowntimeBeforeLatest || res.flags.slashableDowntimeBeforeBlock

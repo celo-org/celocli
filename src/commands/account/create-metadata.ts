@@ -1,5 +1,5 @@
 import { IdentityMetadataWrapper } from '@celo/contractkit'
-import { IArg } from '@oclif/parser/lib/args'
+import { Arg } from '@oclif/core/lib/interfaces'
 import { writeFileSync } from 'fs'
 import { Args } from '../../utils/command'
 import { ClaimCommand } from '../../utils/identity'
@@ -8,7 +8,7 @@ export default class CreateMetadata extends ClaimCommand {
   static description =
     'Create an empty identity metadata file. Use this metadata file to store claims attesting to ownership of off-chain resources. Claims can be generated with the account:claim-* commands.'
   static flags = ClaimCommand.flags
-  static args: IArg[] = [
+  static args: Arg[] = [
     Args.newFile('file', { description: 'Path where the metadata should be saved' }),
   ]
   static examples = [
@@ -16,7 +16,7 @@ export default class CreateMetadata extends ClaimCommand {
   ]
 
   async run() {
-    const res = this.parse(CreateMetadata)
+    const res = await this.parse(CreateMetadata)
     const metadata = IdentityMetadataWrapper.fromEmpty(res.flags.from)
     writeFileSync(res.args.file, metadata.toString())
   }

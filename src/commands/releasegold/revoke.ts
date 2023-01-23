@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import prompts from 'prompts'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -18,7 +18,8 @@ export default class Revoke extends ReleaseGoldBaseCommand {
   static examples = ['revoke --contract 0x5409ED021D9299bf6814279A6A1411A7e866A631']
 
   async run() {
-    const { flags } = this.parse(Revoke)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(Revoke)
 
     const isRevoked = await this.releaseGoldWrapper.isRevoked()
     const isRevocable = await this.releaseGoldWrapper.isRevocable()
@@ -41,7 +42,7 @@ export default class Revoke extends ReleaseGoldBaseCommand {
       }
     }
 
-    this.kit.defaultAccount = await this.releaseGoldWrapper.getReleaseOwner()
-    await displaySendTx('revokeReleasing', await this.releaseGoldWrapper.revokeReleasing())
+    kit.defaultAccount = await this.releaseGoldWrapper.getReleaseOwner()
+    await displaySendTx('revokeReleasing', this.releaseGoldWrapper.revokeReleasing())
   }
 }

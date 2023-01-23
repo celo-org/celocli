@@ -1,5 +1,5 @@
 import { VoteValue } from '@celo/contractkit/lib/wrappers/Governance'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -22,13 +22,14 @@ export default class Vote extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(Vote)
+    const res = await this.parse(Vote)
+    const kit = await this.getKit()
     const signer = res.flags.from
     const id = res.flags.proposalID
     const voteValue = res.flags.value as keyof typeof VoteValue
 
-    this.kit.defaultAccount = signer
-    const governance = await this.kit.contracts.getGovernance()
+    kit.defaultAccount = signer
+    const governance = await kit.contracts.getGovernance()
     governance
 
     await newCheckBuilder(this, signer)

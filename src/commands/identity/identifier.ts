@@ -1,7 +1,6 @@
 import { OdisUtils } from '@celo/identity'
 import { AuthSigner } from '@celo/identity/lib/odis/query'
-import { flags as oFlags } from '@oclif/command'
-import { cli } from 'cli-ux'
+import { Flags as flags, CliUx } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { printValueMap } from '../../utils/cli'
@@ -22,7 +21,7 @@ export default class IdentifierQuery extends BaseCommand {
       description:
         'The phone number for which to query the identifier. Should be in e164 format with country code.',
     }),
-    context: oFlags.string({
+    context: flags.string({
       required: false,
       description: 'mainnet (default), alfajores, or alfajoresstaging',
     }),
@@ -33,16 +32,17 @@ export default class IdentifierQuery extends BaseCommand {
   ]
 
   async run() {
-    const { flags } = this.parse(IdentifierQuery)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(IdentifierQuery)
     const { phoneNumber, from, context } = flags
 
     await newCheckBuilder(this).isValidAddress(flags.from).runChecks()
 
-    cli.action.start('Querying ODIS for identifier')
+    CliUx.ux.action.start('Querying ODIS for identifier')
 
     const authSigner: AuthSigner = {
       authenticationMethod: OdisUtils.Query.AuthenticationMethod.WALLET_KEY,
-      contractKit: this.kit,
+      contractKit: kit,
     }
 
     const res = await OdisUtils.PhoneNumberIdentifier.getPhoneNumberIdentifier(
@@ -52,7 +52,7 @@ export default class IdentifierQuery extends BaseCommand {
       OdisUtils.Query.getServiceContext(context)
     )
 
-    cli.action.stop()
+    CliUx.ux.action.stop()
 
     printValueMap({
       identifier: res.phoneHash,

@@ -15,8 +15,9 @@ export default class DKGStart extends BaseCommand {
   }
 
   async run() {
-    const res = this.parse(DKGStart)
-    const web3 = this.kit.connection.web3
+    const res = await this.parse(DKGStart)
+    const kit = await this.getKit()
+    const web3 = kit.connection.web3
 
     const dkg = new web3.eth.Contract(DKG.abi as unknown as AbiItem[], res.flags.address)
 

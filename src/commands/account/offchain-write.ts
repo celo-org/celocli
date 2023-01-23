@@ -1,6 +1,6 @@
 import { PrivateNameAccessor, PublicNameAccessor } from '@celo/identity/lib/offchain/accessors/name'
 import { privateKeyToAddress } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { binaryPrompt } from '../../utils/cli'
 import { OffchainDataCommand } from '../../utils/off-chain-data'
 
@@ -27,11 +27,12 @@ export default class OffchainWrite extends OffchainDataCommand {
   async run() {
     const {
       flags: { encryptTo, name, privateDEK, privateKey },
-    } = this.parse(OffchainWrite)
+    } = await this.parse(OffchainWrite)
 
     if (encryptTo && privateDEK && privateKey) {
-      this.kit.defaultAccount = privateKeyToAddress(privateKey)
-      this.kit.addAccount(privateDEK)
+      const kit = await this.getKit()
+      kit.defaultAccount = privateKeyToAddress(privateKey)
+      kit.addAccount(privateDEK)
       const nameSchema = new PrivateNameAccessor(this.offchainDataWrapper)
       await nameSchema.write({ name }, [encryptTo])
     } else {

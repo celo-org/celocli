@@ -57,6 +57,6 @@ testWithGanache('releasegold:locked-gold cmd', (web3: Web3) => {
     const pendingWithdrawalsTotalValue = await lockedGold.getPendingWithdrawalsTotalValue(
       contractAddress
     )
-    await expect(pendingWithdrawalsTotalValue.toFixed()).toBe('50')
+    expect(pendingWithdrawalsTotalValue.toFixed()).toBe('50')
   })
 })

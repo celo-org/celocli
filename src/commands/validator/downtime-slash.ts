@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -43,17 +43,18 @@ export default class DowntimeSlashCommand extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(DowntimeSlashCommand)
+    const kit = await this.getKit()
+    const res = await this.parse(DowntimeSlashCommand)
     const validatorsToSlash = res.flags.validators ?? [res.flags.validator!]
 
-    const downtimeSlasher = await this.kit.contracts.getDowntimeSlasher()
+    const downtimeSlasher = await kit.contracts.getDowntimeSlasher()
     const intervals = res.flags.beforeBlock
       ? await downtimeSlasher.slashableDowntimeIntervalsBefore(res.flags.beforeBlock)
       : res.flags.intervals!
 
     const [startBlock, endBlock] = [intervals[0].start, intervals[intervals.length - 1].end]
 
-    await newCheckBuilder(this)
+    const check = newCheckBuilder(this)
       .addCheck(
         `provided intervals span slashableDowntime blocks `,
         async () => endBlock - startBlock + 1 >= (await downtimeSlasher.slashableDowntime())
@@ -63,7 +64,7 @@ export default class DowntimeSlashCommand extends BaseCommand {
         () => downtimeSlasher.isBitmapSetForIntervals(intervals),
         'some bitmaps are not set, please use validator:set-bitmaps'
       )
-      .runChecks()
+    await check.runChecks()
 
     for (const validator of validatorsToSlash) {
       await newCheckBuilder(this, validator)

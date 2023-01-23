@@ -16,9 +16,10 @@ export default class Show extends BaseCommand {
   static examples = ['show 0x5409ed021d9299bf6814279a6a1411a7e866a631']
 
   async run() {
-    const { args } = this.parse(Show)
+    const kit = await this.getKit()
+    const { args } = await this.parse(Show)
 
-    const lockedGold = await this.kit.contracts.getLockedGold()
+    const lockedGold = await kit.contracts.getLockedGold()
 
     await newCheckBuilder(this).isAccount(args.account).runChecks()
 

@@ -20,13 +20,14 @@ export default class Balance extends BaseCommand {
   ]
 
   async run() {
-    const { args, flags } = this.parse(Balance)
+    const { args, flags } = await this.parse(Balance)
+    const kit = await this.getKit()
 
     console.log('All balances expressed in units of 10^-18.')
-    printValueMap(await this.kit.getTotalBalance(args.address))
+    printValueMap(await kit.getTotalBalance(args.address))
     if (flags.erc20Address) {
       try {
-        const erc20 = await this.kit.contracts.getErc20(flags.erc20Address)
+        const erc20 = await kit.contracts.getErc20(flags.erc20Address)
         printValueMap({ erc20: await erc20.balanceOf(args.address) })
       } catch {
         failWith('Invalid erc20 address')

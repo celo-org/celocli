@@ -1,6 +1,6 @@
 import { Ierc20 } from '@celo/contractkit/lib/generated/IERC20'
 import { Erc20Wrapper } from '@celo/contractkit/lib/wrappers/Erc20Wrapper'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import BigNumber from 'bignumber.js'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -35,22 +35,24 @@ export default class TransferErc20 extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(TransferErc20)
+    const kit = await this.getKit()
+    const res = await this.parse(TransferErc20)
 
     const from: string = res.flags.from
     const to: string = res.flags.to
     const value = new BigNumber(res.flags.value)
 
-    this.kit.defaultAccount = from
+    kit.defaultAccount = from
     let celoToken: Erc20Wrapper<Ierc20>
     try {
-      celoToken = await this.kit.contracts.getErc20(res.flags.erc20Address)
+      celoToken = await kit.contracts.getErc20(res.flags.erc20Address)
       // this call allow us to check if it is a valid erc20
       await celoToken.balanceOf(res.flags.from)
     } catch {
       failWith('Invalid erc20 address')
     }
-    await newCheckBuilder(this).hasEnoughErc20(from, value, res.flags.erc20Address).runChecks()
+    const check = await newCheckBuilder(this).hasEnoughErc20(from, value, res.flags.erc20Address)
+    await check.runChecks()
 
     await displaySendTx('transfer', celoToken.transfer(to, value.toFixed()))
   }

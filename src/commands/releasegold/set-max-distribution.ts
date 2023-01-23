@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import prompts from 'prompts'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -26,7 +26,8 @@ export default class SetMaxDistribution extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    const { flags } = this.parse(SetMaxDistribution)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(SetMaxDistribution)
     const distributionRatio = Number(flags.distributionRatio)
 
     await newCheckBuilder(this)
@@ -52,7 +53,7 @@ export default class SetMaxDistribution extends ReleaseGoldBaseCommand {
       }
     }
 
-    this.kit.defaultAccount = await this.releaseGoldWrapper.getReleaseOwner()
+    kit.defaultAccount = await this.releaseGoldWrapper.getReleaseOwner()
     await displaySendTx(
       'setMaxDistribution',
       this.releaseGoldWrapper.setMaxDistribution(distributionRatio)

@@ -1,5 +1,5 @@
-import { flags } from '@oclif/command'
-import { IArg } from '@oclif/parser/lib/args'
+import { Flags as flags } from '@oclif/core'
+import { Arg } from '@oclif/core/lib/interfaces'
 import prompts from 'prompts'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -16,7 +16,7 @@ export default class ValidatorAffiliate extends BaseCommand {
     yes: flags.boolean({ description: 'Answer yes to prompt' }),
   }
 
-  static args: IArg[] = [
+  static args: Arg[] = [
     Args.address('groupAddress', { description: "ValidatorGroup's address", required: true }),
   ]
 
@@ -25,9 +25,10 @@ export default class ValidatorAffiliate extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(ValidatorAffiliate)
+    const kit = await this.getKit()
+    const res = await this.parse(ValidatorAffiliate)
 
-    const validators = await this.kit.contracts.getValidators()
+    const validators = await kit.contracts.getValidators()
 
     await newCheckBuilder(this, res.flags.from)
       .isSignerOrAccount()

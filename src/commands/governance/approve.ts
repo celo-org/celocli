@@ -1,5 +1,5 @@
 import { CeloTransactionObject } from '@celo/connect'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { toBuffer } from 'ethereumjs-util'
 import { BaseCommand } from '../../base'
 import { newCheckBuilder } from '../../utils/checks'
@@ -37,13 +37,14 @@ export default class Approve extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(Approve)
+    const res = await this.parse(Approve)
+    const kit = await this.getKit()
     const account = res.flags.from
     const useMultiSig = res.flags.useMultiSig
     const id = res.flags.proposalID
     const hotfix = res.flags.hotfix
-    this.kit.defaultAccount = account
-    const governance = await this.kit.contracts.getGovernance()
+    kit.defaultAccount = account
+    const governance = await kit.contracts.getGovernance()
     const governanceApproverMultiSig = useMultiSig
       ? await governance.getApproverMultisig()
       : undefined

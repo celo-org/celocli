@@ -1,6 +1,6 @@
-import { flags } from '@oclif/command'
-import { IArg } from '@oclif/parser/lib/args'
-import { cli } from 'cli-ux'
+import { Flags as flags } from '@oclif/core'
+import { Arg } from '@oclif/core/lib/interfaces'
+import { CliUx } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { Args } from '../../utils/command'
 
@@ -22,7 +22,7 @@ export default class Unlock extends BaseCommand {
     }),
   }
 
-  static args: IArg[] = [Args.address('account', { description: 'Account address' })]
+  static args: Arg[] = [Args.address('account', { description: 'Account address' })]
 
   static examples = [
     'unlock 0x5409ed021d9299bf6814279a6a1411a7e866a631',
@@ -32,13 +32,14 @@ export default class Unlock extends BaseCommand {
   requireSynced = false
 
   async run() {
-    const res = this.parse(Unlock)
+    const res = await this.parse(Unlock)
     if (res.flags.useLedger) {
       console.warn('Warning: account:unlock not implemented for Ledger')
     }
 
     const password =
-      res.flags.password || (await cli.prompt('Password', { type: 'hide', required: false }))
-    await this.web3.eth.personal.unlockAccount(res.args.account, password, res.flags.duration)
+      res.flags.password || (await CliUx.ux.prompt('Password', { type: 'hide', required: false }))
+    const web3 = await this.getWeb3()
+    await web3.eth.personal.unlockAccount(res.args.account, password, res.flags.duration)
   }
 }

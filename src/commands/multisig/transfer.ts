@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BigNumber } from 'bignumber.js'
 import { BaseCommand } from '../../base'
 import { displaySendTx } from '../../utils/cli'
@@ -30,13 +30,14 @@ export default class MultiSigTransfer extends BaseCommand {
   ]
 
   async run() {
+    const kit = await this.getKit()
     const {
       args,
       flags: { to, sender, from, amount, transferFrom },
-    } = this.parse(MultiSigTransfer)
+    } = await this.parse(MultiSigTransfer)
     const amountBN = new BigNumber(amount)
-    const celoToken = await this.kit.contracts.getGoldToken()
-    const multisig = await this.kit.contracts.getMultiSig(args.address)
+    const celoToken = await kit.contracts.getGoldToken()
+    const multisig = await kit.contracts.getMultiSig(args.address)
 
     let transferTx
     if (transferFrom) {

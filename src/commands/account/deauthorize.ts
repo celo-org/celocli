@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { displaySendTx } from '../../utils/cli'
 import { Flags } from '../../utils/command'
@@ -26,9 +26,10 @@ export default class Deauthorize extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(Deauthorize)
+    const res = await this.parse(Deauthorize)
 
-    const accounts = await this.kit.contracts.getAccounts()
+    const kit = await this.getKit()
+    const accounts = await kit.contracts.getAccounts()
 
     if (res.flags.role !== 'attestation') {
       this.error(`Invalid role provided`)

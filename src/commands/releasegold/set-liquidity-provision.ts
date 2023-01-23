@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import prompts from 'prompts'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -20,7 +20,8 @@ export default class SetLiquidityProvision extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    const { flags } = this.parse(SetLiquidityProvision)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(SetLiquidityProvision)
 
     await newCheckBuilder(this)
       .addCheck('The liquidity provision has not already been set', async () => {
@@ -42,7 +43,7 @@ export default class SetLiquidityProvision extends ReleaseGoldBaseCommand {
       }
     }
 
-    this.kit.defaultAccount = await this.releaseGoldWrapper.getReleaseOwner()
+    kit.defaultAccount = await this.releaseGoldWrapper.getReleaseOwner()
     await displaySendTx('setLiquidityProvision', this.releaseGoldWrapper.setLiquidityProvision())
   }
 }

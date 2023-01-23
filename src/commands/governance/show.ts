@@ -1,6 +1,6 @@
 import { ProposalBuilder, proposalToJSON } from '@celo/governance'
 import { concurrentMap } from '@celo/utils/lib/async'
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import chalk from 'chalk'
 import { toBuffer } from 'ethereumjs-util'
 import { writeFileSync } from 'fs'
@@ -76,27 +76,28 @@ export default class Show extends BaseCommand {
   ]
 
   async run() {
-    const res = this.parse(Show)
+    const res = await this.parse(Show)
+    const kit = await this.getKit()
     const id = res.flags.proposalID
     const raw = res.flags.raw
     const account = res.flags.account
     const hotfix = res.flags.hotfix
 
-    const governance = await this.kit.contracts.getGovernance()
+    const governance = await kit.contracts.getGovernance()
     if (id) {
       await newCheckBuilder(this).proposalExists(id).runChecks()
 
       const record = await governance.getProposalRecord(id)
       const proposal = record.proposal
       if (!raw) {
-        const builder = new ProposalBuilder(this.kit)
+        const builder = new ProposalBuilder(kit)
         if (res.flags.afterExecutingID) {
-          await addExistingProposalIDToBuilder(this.kit, builder, res.flags.afterExecutingID)
+          await addExistingProposalIDToBuilder(kit, builder, res.flags.afterExecutingID)
         } else if (res.flags.afterExecutingProposal) {
           await addExistingProposalJSONFileToBuilder(builder, res.flags.afterExecutingProposal)
         }
         try {
-          const jsonproposal = await proposalToJSON(this.kit, proposal, builder.registryAdditions)
+          const jsonproposal = await proposalToJSON(kit, proposal, builder.registryAdditions)
           record.proposal = jsonproposal as any
 
           if (res.flags.jsonTransactions) {
@@ -142,7 +143,7 @@ export default class Show extends BaseCommand {
       })
 
       if (res.flags.whitelisters || res.flags.nonwhitelisters) {
-        const validators = await this.kit.contracts.getValidators()
+        const validators = await kit.contracts.getValidators()
         const accounts = await validators.currentValidatorAccountsSet()
         const whitelist = await concurrentMap(
           5,
@@ -156,7 +157,7 @@ export default class Show extends BaseCommand {
         })
       }
     } else if (account) {
-      const accounts = await this.kit.contracts.getAccounts()
+      const accounts = await kit.contracts.getAccounts()
       printValueMapRecursive(await governance.getVoter(await accounts.signerToAccount(account)))
     }
   }

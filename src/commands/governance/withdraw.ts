@@ -14,11 +14,12 @@ export default class Withdraw extends BaseCommand {
   static examples = ['withdraw --from 0x5409ed021d9299bf6814279a6a1411a7e866a631']
 
   async run() {
-    const res = this.parse(Withdraw)
+    const res = await this.parse(Withdraw)
+    const kit = await this.getKit()
 
     await newCheckBuilder(this, res.flags.from).hasRefundedDeposits(res.flags.from).runChecks()
 
-    const governance = await this.kit.contracts.getGovernance()
+    const governance = await kit.contracts.getGovernance()
     await displaySendTx('withdraw', governance.withdraw(), {}, 'DepositWithdrawn')
   }
 }

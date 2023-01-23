@@ -1,6 +1,5 @@
 import { eqAddress } from '@celo/utils/lib/address'
-import { flags } from '@oclif/command'
-import { cli } from 'cli-ux'
+import { Flags as flags, CliUx } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { validatorTable } from '../validator/list'
 
@@ -21,14 +20,15 @@ export default class ElectionCurrent extends BaseCommand {
       description:
         'Show currently used signers from valset (by default the authorized validator signers are shown). Useful for checking if keys have been rotated.',
     }),
-    ...(cli.table.flags() as object),
+    ...(CliUx.ux.table.flags() as object),
   }
 
   async run() {
-    const res = this.parse(ElectionCurrent)
-    cli.action.start('Fetching currently elected Validators')
-    const election = await this.kit.contracts.getElection()
-    const validators = await this.kit.contracts.getValidators()
+    const res = await this.parse(ElectionCurrent)
+    CliUx.ux.action.start('Fetching currently elected Validators')
+    const kit = await this.getKit()
+    const election = await kit.contracts.getElection()
+    const validators = await kit.contracts.getValidators()
     const signers = await election.getCurrentValidatorSigners()
     if (res.flags.valset) {
       const validatorList = await Promise.all(
@@ -37,14 +37,14 @@ export default class ElectionCurrent extends BaseCommand {
           return { ...v, currentSigner: addr, changed: eqAddress(addr, v.signer) ? '' : 'CHANGING' }
         })
       )
-      cli.action.stop()
-      cli.table(validatorList, otherValidatorTable, res.flags)
+      CliUx.ux.action.stop()
+      CliUx.ux.table(validatorList, otherValidatorTable, res.flags)
     } else {
-      const validatorList = await Promise.all(
+      const validatorList: unknown = await Promise.all(
         signers.map((addr) => validators.getValidatorFromSigner(addr))
       )
-      cli.action.stop()
-      cli.table(validatorList, validatorTable, res.flags)
+      CliUx.ux.action.stop()
+      CliUx.ux.table(validatorList as Record<string, unknown>[], validatorTable, res.flags)
     }
   }
 }

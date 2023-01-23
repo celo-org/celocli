@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import prompts from 'prompts'
 import { newCheckBuilder } from '../../utils/checks'
 import { displaySendTx } from '../../utils/cli'
@@ -28,7 +28,8 @@ export default class SetCanExpire extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    const { flags } = this.parse(SetCanExpire)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(SetCanExpire)
     const canExpire = flags.value === 'true' || flags.value === 'True' ? true : false
 
     await newCheckBuilder(this)
@@ -51,7 +52,7 @@ export default class SetCanExpire extends ReleaseGoldBaseCommand {
       }
     }
 
-    this.kit.defaultAccount = await this.releaseGoldWrapper.getBeneficiary()
+    kit.defaultAccount = await this.releaseGoldWrapper.getBeneficiary()
     await displaySendTx('setCanExpire', this.releaseGoldWrapper.setCanExpire(canExpire))
   }
 }

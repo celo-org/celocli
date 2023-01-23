@@ -22,9 +22,10 @@ export default class TransferDollars extends ReleaseGoldBaseCommand {
   ]
 
   async run() {
-    const { flags } = this.parse(TransferDollars)
+    const kit = await this.getKit()
+    const { flags } = await this.parse(TransferDollars)
     const isRevoked = await this.releaseGoldWrapper.isRevoked()
-    this.kit.defaultAccount = isRevoked
+    kit.defaultAccount = isRevoked
       ? await this.releaseGoldWrapper.getReleaseOwner()
       : await this.releaseGoldWrapper.getBeneficiary()
 

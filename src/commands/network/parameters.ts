@@ -1,4 +1,4 @@
-import { flags } from '@oclif/command'
+import { Flags as flags } from '@oclif/core'
 import { BaseCommand } from '../../base'
 import { printValueMapRecursive } from '../../utils/cli'
 
@@ -16,8 +16,9 @@ export default class Parameters extends BaseCommand {
   }
 
   async run() {
-    const res = this.parse(Parameters)
-    const config = await this.kit.getNetworkConfig(!res.flags.raw)
+    const kit = await this.getKit()
+    const res = await this.parse(Parameters)
+    const config = await kit.getNetworkConfig(!res.flags.raw)
     printValueMapRecursive(config)
   }
 }
