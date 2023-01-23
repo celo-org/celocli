@@ -1,0 +1,43 @@
+name: Run test
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**.md"
+    push:
+      branches:
+        - main
+      paths-ignore:
+        - "**.md"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Setup node_modules
+        run: yarn
+
+      - name: Generate DevChain
+        run: yarn test:reset
+
+      - name: Run tests
+        run: yarn test
+
+      # NOTE: this won't work because docs aren't here
+      # - name: Fail if someone forgot to commit CLI docs
+      #   run: |
+      #     yarn docs
+      #     if [[ $(git status packages/docs/command-line-interface --porcelain) ]]; then
+      #       git --no-pager diff packages/docs/command-line-interface
+      #       echo "There are git differences after generating CLI docs"
+      #       exit 1
+      #     fi
+
+      - name: Verify that a new account can be created
+        run: |
+          yarn run celocli account:new
