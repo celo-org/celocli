@@ -1,5 +1,6 @@
+/// <reference types="../types/ganache" />
+
 import ganache from "@celo/ganache-cli";
-import chalk from "chalk";
 import { spawn, SpawnOptions } from "child_process";
 import fs from "fs-extra";
 import path from "path";
@@ -20,6 +21,7 @@ const ProtocolRoot = path.normalize(path.join(__dirname, "../"));
 const CallerCWD = process.env.INIT_CWD ? process.env.INIT_CWD : process.cwd();
 process.chdir(CallerCWD);
 
+console.log("WTF?")
 yargs
   .scriptName("devchain")
   .recommendCommands()
@@ -40,14 +42,16 @@ yargs
           type: "number",
           description: "When reset, run upto given migration",
         }),
-    (args) =>
-      exitOnError(
+    (args) => {
+      if (!args.datadir) throw new Error("Missing Data Dir");
+      return exitOnError(
         runDevChain(args.datadir, {
           reset: args.reset,
           upto: args.upto,
           targz: false,
         })
-      )
+      );
+    }
   )
   .command(
     "run-tar <filename>",
@@ -57,7 +61,10 @@ yargs
         type: "string",
         description: "Chain tar filename",
       }),
-    (args) => exitOnError(runDevChainFromTar(args.filename))
+    (args) => {
+      if (!args.filename) throw new Error("Missing filename");
+      return exitOnError(runDevChainFromTar(args.filename));
+    }
   )
   .command(
     "generate <datadir>",
@@ -74,14 +81,16 @@ yargs
           description:
             "Path to JSON containing config values to use in migrations",
         }),
-    (args) =>
-      exitOnError(
+    (args) => {
+      if (!args.datadir) throw new Error("Missing datadir");
+      return exitOnError(
         generateDevChain(args.datadir, {
           upto: args.upto,
           migrationOverride: args.migration_override,
           targz: false,
         })
-      )
+      );
+    }
   )
   .command(
     "generate-tar <filename>",
@@ -105,27 +114,36 @@ yargs
           type: "string",
           description: "Path to JSON containing list of release gold contracts",
         }),
-    (args) =>
-      exitOnError(
+    (args) => {
+      if (!args.filename) throw new Error("Missing filename");
+      return exitOnError(
         generateDevChain(args.filename, {
           upto: args.upto,
           migrationOverride: args.migration_override,
           releaseGoldContracts: args.release_gold_contracts,
           targz: true,
         })
-      )
+      );
+    }
   )
   .command(
     "compress-chain <datadir> <filename>",
     "Create a devchain.tar.gz from specified datadir",
     (args) =>
       args
-        .positional("datadir", { type: "string", description: "datadir path" })
+        .positional("datadir", {
+          type: "string",
+          description: "datadir path",
+        })
         .positional("filename", {
           type: "string",
           description: "chain tar filename",
         }),
-    (args) => exitOnError(compressChain(args.datadir, args.filename))
+    (args) => {
+      if (!args.datadir) throw new Error("Missing datadir");
+      if (!args.filename) throw new Error("Missing filename");
+      return exitOnError(compressChain(args.datadir, args.filename));
+    }
   ).argv;
 
 async function startGanache(
@@ -134,12 +152,12 @@ async function startGanache(
   chainCopy?: tmp.DirResult
 ) {
   const logFn = opts.verbose
-    ?
-      (...args: any[]) => console.log(...args)
+    ? (...args: any[]) => console.log(...args)
     : () => {
         /*nothing*/
       };
 
+      console.log("Making server")
   const server = ganache.server({
     default_balance_ether: 200000000,
     logger: {
@@ -153,19 +171,23 @@ async function startGanache(
   });
 
   await new Promise((resolve, reject) => {
+    console.log("Listening server")
     server.listen(8545, (err, blockchain) => {
+      console.log("INSIDE SERVERLLISTEN CALLBACK")
       if (err) {
         reject(err);
       } else {
-        console.log(chalk.red("Ganache STARTED"));
+        console.log("Ganache STARTED");
         // console.log(blockchain)
         resolve(blockchain);
       }
     });
   });
+  console.log("done listening server")
 
   return () =>
     new Promise<void>((resolve, reject) => {
+    console.log("thing????????????????")
       server.close((err) => {
         if (chainCopy) {
           chainCopy.removeCallback();
@@ -184,7 +206,7 @@ export function execCmd(
   args: string[],
   options?: SpawnOptions & { silent?: boolean }
 ) {
-  return new Promise<number>( (resolve, reject) => {
+  return new Promise<number | null>((resolve, reject) => {
     const { silent, ...spawnOptions } = options || { silent: false };
     if (!silent) {
       console.debug("$ " + [cmd].concat(args).join(" "));
@@ -278,6 +300,7 @@ async function runDevChainFromTar(filename: string) {
 
   await decompressChain(filename, chainCopy.name);
 
+  console.log("STAETERERE GANACHE")
   const stopGanache = await startGanache(
     chainCopy.name,
     { verbose: true },
@@ -348,7 +371,7 @@ async function generateDevChain(
   } = {}
 ) {
   let chainPath = filePath;
-  let chainTmp: tmp.DirResult;
+  let chainTmp: tmp.DirResult | undefined;
   if (opts.targz) {
     chainTmp = tmp.dirSync({ keep: false, unsafeCleanup: true });
     chainPath = chainTmp.name;
@@ -377,7 +400,7 @@ async function compressChain(
   return new Promise((resolve, reject) => {
     // ensures the path to the file
     fs.ensureFileSync(filename);
-    targz.compress({ src: chainPath, dest: filename }, async (err: Error) => {
+    targz.compress({ src: chainPath, dest: filename }, async (err) => {
       if (err) {
         console.error(err);
         reject(err);
