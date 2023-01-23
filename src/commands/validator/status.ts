@@ -67,12 +67,14 @@ export default class ValidatorStatus extends BaseCommand {
   ]
 
   async run() {
-    const kit = await this.getKit()
-    const web3 = await this.getWeb3()
-    const res = await this.parse(ValidatorStatus)
-    const accounts = await kit.contracts.getAccounts()
-    const validators = await kit.contracts.getValidators()
-    const election = await kit.contracts.getElection()
+    const kit = await this.getKit();
+    const [web3, res, accounts, validators, election] = await Promise.all([
+      this.getWeb3(),
+      this.parse(ValidatorStatus),
+      kit.contracts.getAccounts(),
+      kit.contracts.getValidators(),
+      kit.contracts.getElection(),
+    ]);
 
     // Resolve the signer address(es) from the provide flags.
     let signers: string[] = []
