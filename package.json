@@ -21,8 +21,8 @@
     "node": ">=14"
   },
   "scripts": {
-    "clean": "tsc -b . --clean",
-    "build": "tsc -b .",
+    "clean": "tsc --build ./tsconfig.build.json --clean",
+    "build": "tsc --build ./tsconfig.build.json",
     "docs": "./generate_docs.sh",
     "lint": "eslint . --ext .ts",
     "prepublish": "",
